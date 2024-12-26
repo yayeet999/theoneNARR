@@ -4,37 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import {
-  Building2,
-  Trees,
-  Anchor,
-  Mountain,
-  Castle,
-  Rocket,
-  Clock,
-  Boxes,
-  ChevronRight,
-  Globe2,
-  ArrowLeft,
-  Home,
-  Map as MapIcon,
-  Compass,
-  Building,
-  LayoutGrid,
-  Trees as TreesIcon,
-  CalendarDays,
-  Calendar,
-  History,
-  TimerReset,
-  Wand2,
-  Cpu,
-  Users,
-  TreePine,
-  Globe,
-  Sparkles
+  Building2, Trees, Anchor, Mountain, Castle, Rocket,
+  Clock, Boxes, ChevronRight, Globe2, ArrowLeft, Home,
+  Map as MapIcon, Compass, Building, LayoutGrid,
+  Trees as TreesIcon, CalendarDays, Calendar, History,
+  TimerReset, Wand2, Cpu, Users, TreePine, Globe, Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
 
+// Types
 interface SettingOption {
   id: string;
   label: string;
@@ -51,6 +30,41 @@ interface CategoryVisualProps {
   type: 'contained' | 'expansive';
 }
 
+interface WorldSystemState {
+  magicLevel: number;
+  technologyLevel: number;
+  socialComplexity: number;
+  environmentalDiversity: number;
+  culturalRange: number;
+  supernaturalPresence: number;
+}
+
+interface CultureTag {
+  id: string;
+  name: string;
+  category: string;
+}
+
+// Utility functions
+const getMagicLevelDescription = (value: number) => {
+  if (value <= 10) return "No magic, purely mundane world";
+  if (value <= 25) return "Folk tales and superstition only";
+  if (value <= 50) return "Limited magic, rare but powerful";
+  if (value <= 75) return "Common magic, integrated into daily life";
+  if (value <= 90) return "High magic shapes society and culture";
+  return "Reality-bending magical saturation";
+};
+
+const getTechnologyLevelDescription = (value: number) => {
+  if (value <= 10) return "Stone tools and basic crafts";
+  if (value <= 25) return "Early metallurgy and simple machines";
+  if (value <= 50) return "Industrial age equivalency";
+  if (value <= 75) return "Modern to near-future technology";
+  if (value <= 90) return "Advanced sci-fi tech";
+  return "Clarke's Law tech indistinguishable from magic";
+};
+
+// Components
 const CategoryVisual: React.FC<CategoryVisualProps> = ({ type }) => {
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -159,21 +173,13 @@ const TimeLineButton: React.FC<{
   </div>
 );
 
-interface WorldSystemState {
-  magicLevel: number;
-  technologyLevel: number;
-  socialComplexity: number;
-  environmentalDiversity: number;
-  culturalRange: number;
-  supernaturalPresence: number;
-}
-
 const WorldBuilding: React.FC = () => {
+  // State
   const [selectedMainCategory, setSelectedMainCategory] = useState<'contained' | 'expansive' | null>(null);
   const [selectedSetting, setSelectedSetting] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [animate, setAnimate] = useState(true);
-  const [currentStep, setCurrentStep] = useState<'category' | 'time_period' | 'world_system'>('category');
+  const [currentStep, setCurrentStep] = useState<'category' | 'time_period' | 'world_system' | 'cultural_elements'>('category');
   const [selectedTimelineType, setSelectedTimelineType] = useState<'linear' | 'nonlinear' | null>(null);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<string | null>(null);
   const [selectedSubPeriod, setSelectedSubPeriod] = useState<string | null>(null);
@@ -185,7 +191,9 @@ const WorldBuilding: React.FC = () => {
     culturalRange: 50,
     supernaturalPresence: 0
   });
+  const [selectedCultures, setSelectedCultures] = useState<string[]>([]);
 
+  // Data
   const containedSettings: SettingOption[] = [
     {
       id: 'urban',
@@ -397,6 +405,42 @@ const WorldBuilding: React.FC = () => {
     }
   };
 
+  const culturalElements = {
+    historical: [
+      { id: 'ancient-egypt', name: 'Ancient Egyptian', category: 'Historical' },
+      { id: 'medieval-europe', name: 'Medieval European', category: 'Historical' },
+      { id: 'feudal-japan', name: 'Feudal Japanese', category: 'Historical' },
+      { id: 'ancient-rome', name: 'Ancient Roman', category: 'Historical' },
+      { id: 'viking-norse', name: 'Viking/Norse', category: 'Historical' },
+      { id: 'ancient-greece', name: 'Ancient Greek', category: 'Historical' }
+    ],
+    fantasy: [
+      { id: 'highfantasy', name: 'High Fantasy', category: 'Fantasy' },
+      { id: 'norse-myth', name: 'Norse Mythology', category: 'Fantasy' },
+      { id: 'greek-myth', name: 'Greek Mythology', category: 'Fantasy' },
+      { id: 'celtic-myth', name: 'Celtic Mythology', category: 'Fantasy' },
+      { id: 'oriental-myth', name: 'Oriental Mythology', category: 'Fantasy' },
+      { id: 'eldritch', name: 'Eldritch/Cosmic', category: 'Fantasy' }
+    ],
+    scifi: [
+      { id: 'cyberpunk', name: 'Cyberpunk', category: 'Sci-Fi' },
+      { id: 'space-opera', name: 'Space Opera', category: 'Sci-Fi' },
+      { id: 'alien-civ', name: 'Alien Civilization', category: 'Sci-Fi' },
+      { id: 'post-apocalyptic', name: 'Post-Apocalyptic', category: 'Sci-Fi' },
+      { id: 'biopunk', name: 'Biopunk', category: 'Sci-Fi' },
+      { id: 'solarpunk', name: 'Solarpunk', category: 'Sci-Fi' }
+    ],
+    contemporary: [
+      { id: 'modern-western', name: 'Modern Western', category: 'Contemporary' },
+      { id: 'urban-culture', name: 'Urban Culture', category: 'Contemporary' },
+      { id: 'eastern-influence', name: 'Eastern Influence', category: 'Contemporary' },
+      { id: 'latin-culture', name: 'Latin Culture', category: 'Contemporary' },
+      { id: 'african-culture', name: 'African Culture', category: 'Contemporary' },
+      { id: 'middle-eastern', name: 'Middle Eastern', category: 'Contemporary' }
+    ]
+  };
+
+  // Event Handlers
   const handleContinue = () => {
     setAnimate(false);
     setTimeout(() => {
@@ -434,6 +478,7 @@ const WorldBuilding: React.FC = () => {
     setSelectedVariant(variantId);
   };
 
+  // Render Functions
   const renderSettingOptions = (settings: SettingOption[]) => (
     <div className="grid grid-cols-2 gap-8">
       {settings.map((setting, index) => {
@@ -680,7 +725,7 @@ const WorldBuilding: React.FC = () => {
                   />
                 </motion.div>
               ))}
-            </div>
+            </</div>
           ) : (
             <div className="grid grid-cols-2 gap-6">
               {Object.entries(nonLinearOptions).map(([key, option]) => (
@@ -727,24 +772,6 @@ const WorldBuilding: React.FC = () => {
       )}
     </div>
   );
-
-  const getMagicLevelDescription = (value: number) => {
-    if (value <= 10) return "No magic, purely mundane world";
-    if (value <= 25) return "Folk tales and superstition only";
-    if (value <= 50) return "Limited magic, rare but powerful";
-    if (value <= 75) return "Common magic, integrated into daily life";
-    if (value <= 90) return "High magic shapes society and culture";
-    return "Reality-bending magical saturation";
-  };
-
-  const getTechnologyLevelDescription = (value: number) => {
-    if (value <= 10) return "Stone tools and basic crafts";
-    if (value <= 25) return "Early metallurgy and simple machines";
-    if (value <= 50) return "Industrial age equivalency";
-    if (value <= 75) return "Modern to near-future technology";
-    if (value <= 90) return "Advanced sci-fi tech";
-    return "Clarke's Law tech indistinguishable from magic";
-  };
 
   const renderWorldSystemSliders = () => (
     <motion.div
@@ -885,7 +912,7 @@ const WorldBuilding: React.FC = () => {
           >
             <Button
               onClick={() => {
-                console.log('Continue to Cultural Elements');
+                setCurrentStep('cultural_elements');
               }}
               className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
             >
@@ -897,16 +924,107 @@ const WorldBuilding: React.FC = () => {
     </motion.div>
   );
 
+  const renderCulturalElements = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-12"
+    >
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Label className="text-lg font-medium text-slate-900">
+            Select Cultural Elements
+          </Label>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setCurrentStep('world_system');
+            }}
+            className="text-slate-600"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to World System
+          </Button>
+        </div>
+
+        <p className="text-sm text-slate-600">
+          Choose cultural influences that will shape your world. Select multiple elements to create a rich, diverse setting.
+        </p>
+
+        <div className="space-y-8">
+          {Object.entries(culturalElements).map(([category, elements]) => (
+            <motion.div
+              key={category}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="space-y-4"
+            >
+              <h3 className="text-lg font-medium capitalize text-slate-900">{category} Elements</h3>
+              <div className="flex flex-wrap gap-2">
+                {elements.map((element) => (
+                  <button
+                    key={element.id}
+                    onClick={() => {
+                      setSelectedCultures(prev =>
+                        prev.includes(element.id)
+                          ? prev.filter(id => id !== element.id)
+                          : [...prev, element.id]
+                      );
+                    }}
+                    className={cn(
+                      "px-4 py-2 rounded-full text-sm font-medium transition-all duration-200",
+                      "hover:ring-2 hover:ring-indigo-200",
+                      selectedCultures.includes(element.id)
+                        ? "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-300"
+                        : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                    )}
+                  >
+                    {element.name}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex justify-end mt-8"
+        >
+          <Button
+            onClick={() => {
+              console.log('World building complete', {
+                setting: selectedSetting,
+                variant: selectedVariant,
+                timeline: selectedTimelineType,
+                period: selectedTimePeriod,
+                subPeriod: selectedSubPeriod,
+                worldSystem,
+                cultures: selectedCultures
+              });
+            }}
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
+            disabled={selectedCultures.length === 0}
+          >
+            Complete World Building
+          </Button>
+        </motion.div>
+      </div>
+    </motion.div>
+  );
+
+  // Main Render
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-slate-200 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-medium bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">
-                World Building
-              </h1>
-              <p className="text-sm text-slate-600">Design your story's setting and environment</p>
+            <h1 className="text-xl font-semibold text-slate-900">World Building</h1>
+            <div className="text-sm font-medium text-slate-600">
+              {currentStep === 'category' ? 'Setting Selection' :
+               currentStep === 'time_period' ? 'Time Period' :
+               currentStep === 'world_system' ? 'World System' : 'Cultural Elements'}
             </div>
           </div>
         </div>
@@ -918,91 +1036,46 @@ const WorldBuilding: React.FC = () => {
             {!selectedMainCategory && (
               <motion.div
                 className={cn(
-                  "space-y-8 transition-all duration-500",
-                  animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+                  "space-y-8",
+                  animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
                 )}
               >
-                <div className="space-y-6">
-                  <Label className="text-lg font-medium text-slate-900">Choose your setting category</Label>
-                  <div className="grid grid-cols-2 gap-8">
-                    <div className="space-y-6">
-                      <CategoryVisual type="contained" />
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <button
-                          onClick={() => handleCategorySelect('contained')}
-                          className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
-                            transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
-                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                          <div className="flex flex-col items-center space-y-4">
-                            <Building2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
-                            <div className="text-center">
-                              <h3 className="text-lg font-medium text-slate-900">Contained Settings</h3>
-                              <p className="mt-2 text-sm text-slate-500">
-                                Focused, well-defined locations perfect for intimate storytelling
-                              </p>
-                              <ul className="mt-4 text-sm text-slate-600 space-y-2">
-                                <li className="flex items-center">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
-                                  Single location focus
-                                </li>
-                                <li className="flex items-center">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
-                                  Detailed environment
-                                </li>
-                                <li className="flex items-center">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
-                                  Character-driven narratives
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                        </button>
-                      </motion.div>
-                    </div>
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-medium text-slate-900">Choose Your Setting Type</h2>
+                  <p className="text-slate-600">Start by selecting the broad category of your world's setting</p>
+                </div>
 
-                    <div className="space-y-6">
-                      <CategoryVisual type="expansive" />
-                      <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 }}
-                      >
-                        <button
-                          onClick={() => handleCategorySelect('expansive')}
-                          className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
-                            transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
-                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                          <div className="flex flex-col items-center space-y-4">
-                            <Globe2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
-                            <div className="text-center">
-                              <h3 className="text-lg font-medium text-slate-900">Expansive Settings</h3>
-                              <p className="mt-2 text-sm text-slate-500">
-                                Broad, encompassing worlds ideal for epic narratives
-                              </p>
-                              <ul className="mt-4 text-sm text-slate-600 space-y-2">
-                                <li className="flex items-center">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
-                                  Multiple interconnected locations
-                                </li>
-                                <li className="flex items-center">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
-                                  Rich world-building opportunities
-                                </li>
-                                <li className="flex items-center">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
-                                  Epic-scale adventures
-                                </li>
-                              </ul>
-                            </div>
-                          </div>
-                        </button>
-                      </motion.div>
+                <div className="grid grid-cols-2 gap-8">
+                  <div
+                    className={cn(
+                      "relative group cursor-pointer",
+                      animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                    )}
+                    onClick={() => handleCategorySelect('contained')}
+                  >
+                    <CategoryVisual type="contained" />
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium text-slate-900">Contained Settings</h3>
+                      <p className="text-sm text-slate-600">
+                        Focused environments with clear boundaries and defined spaces
+                      </p>
+                    </div>
+                  </div>
+
+                  <div
+                    className={cn(
+                      "relative group cursor-pointer",
+                      animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+                    )}
+                    style={{ transitionDelay: '100ms' }}
+                    onClick={() => handleCategorySelect('expansive')}
+                  >
+                    <CategoryVisual type="expansive" />
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-medium text-slate-900">Expansive Settings</h3>
+                      <p className="text-sm text-slate-600">
+                        Vast worlds and realms with broad scope and extensive reach
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -1012,25 +1085,34 @@ const WorldBuilding: React.FC = () => {
             {selectedMainCategory && (
               <motion.div
                 className={cn(
-                  "space-y-8 transition-all duration-500",
-                  animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+                  "space-y-8",
+                  animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-100'
                 )}
               >
                 <div className="flex items-center justify-between">
-                  <Label className="text-lg font-medium text-slate-900">
-                    {selectedMainCategory === 'contained' ? 'Choose your contained setting' : 'Choose your expansive setting'}
-                  </Label>
+                  <div className="space-y-1">
+                    <h2 className="text-2xl font-medium text-slate-900">
+                      {selectedMainCategory === 'contained' ? 'Contained Settings' : 'Expansive Settings'}
+                    </h2>
+                    <p className="text-slate-600">
+                      {selectedMainCategory === 'contained'
+                        ? 'Select a focused environment for your story'
+                        : 'Choose a vast realm for your narrative'}
+                    </p>
+                  </div>
                   <Button
                     variant="ghost"
                     onClick={() => {
-                      setSelectedMainCategory(null);
-                      setSelectedSetting(null);
-                      setSelectedVariant(null);
+                      setAnimate(false);
+                      setTimeout(() => {
+                        setSelectedMainCategory(null);
+                        setAnimate(true);
+                      }, 300);
                     }}
                     className="text-slate-600"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back
+                    Back to Categories
                   </Button>
                 </div>
                 {renderSettingOptions(selectedMainCategory === 'contained' ? containedSettings : expansiveSettings)}
@@ -1039,13 +1121,10 @@ const WorldBuilding: React.FC = () => {
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mt-8 flex justify-end"
+                    className="flex justify-end"
                   >
-                    <Button
-                      onClick={handleContinue}
-                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
-                    >
-                      Continue to Time Period
+                    <Button onClick={handleContinue} className="bg-indigo-600 hover:bg-indigo-500 text-white px-8">
+                      Continue
                     </Button>
                   </motion.div>
                 )}
@@ -1056,34 +1135,33 @@ const WorldBuilding: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -100 }}
             className="space-y-8"
           >
             <div className="flex items-center justify-between">
-              <Label className="text-lg font-medium text-slate-900">
-                Choose your time period
-              </Label>
+              <div className="space-y-1">
+                <h2 className="text-2xl font-medium text-slate-900">Choose Your Timeline</h2>
+                <p className="text-slate-600">
+                  Select how time flows in your world
+                </p>
+              </div>
               <Button
                 variant="ghost"
                 onClick={() => {
-                  setAnimate(false);
-                  setTimeout(() => {
-                    setCurrentStep('category');
-                    setSelectedTimelineType(null);
-                    setSelectedTimePeriod(null);
-                    setSelectedSubPeriod(null);
-                    setAnimate(true);
-                  }, 300);
+                  setCurrentStep('category');
                 }}
                 className="text-slate-600"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Settings
+                Back to Setting
               </Button>
             </div>
             {renderTimePeriodFramework()}
           </motion.div>
-        ) : (
+        ) : currentStep === 'world_system' ? (
           renderWorldSystemSliders()
+        ) : (
+          renderCulturalElements()
         )}
       </div>
     </div>
