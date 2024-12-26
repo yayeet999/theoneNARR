@@ -160,6 +160,7 @@ const WorldBuilding: React.FC = () => {
   const [currentStep, setCurrentStep] = useState<'category' | 'time_period'>('category');
   const [selectedTimelineType, setSelectedTimelineType] = useState<'linear' | 'nonlinear' | null>(null);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<string | null>(null);
+  const [selectedSubPeriod, setSelectedSubPeriod] = useState<string | null>(null);
 
   const containedSettings: SettingOption[] = [
     {
@@ -278,6 +279,99 @@ const WorldBuilding: React.FC = () => {
       ]
     }
   ];
+
+  const timePeriods = {
+    prehistoric: {
+      label: 'Prehistoric',
+      period: 'Before 3000 BCE',
+      subPeriods: [
+        { id: 'stone-age', name: 'Stone Age', options: ['Early Hunter-Gatherer', 'First Settlements', 'Cave Painting Era'] },
+        { id: 'bronze-age', name: 'Bronze Age', options: ['Early Metallurgy', 'First Cities', 'Trade Networks'] },
+        { id: 'iron-age', name: 'Iron Age', options: ['Warrior Cultures', 'Empire Building', 'Technological Revolution'] }
+      ]
+    },
+    ancient: {
+      label: 'Ancient',
+      period: '3000 BCE - 500 CE',
+      subPeriods: [
+        { id: 'early-civilizations', name: 'Early Civilizations', options: ['Mesopotamian Era', 'Egyptian Dynasties', 'Indus Valley'] },
+        { id: 'classical-period', name: 'Classical Period', options: ['Greek City-States', 'Roman Republic', 'Han Dynasty'] },
+        { id: 'late-antiquity', name: 'Late Antiquity', options: ['Empire Decline', 'Religious Shifts', 'Barbarian Migrations'] }
+      ]
+    },
+    medieval: {
+      label: 'Medieval',
+      period: '500 - 1500 CE',
+      subPeriods: [
+        { id: 'early-medieval', name: 'Early Medieval', options: ['Dark Ages', 'Byzantine Empire', 'Islamic Golden Age'] },
+        { id: 'high-medieval', name: 'High Medieval', options: ['Crusader Kingdoms', 'Mongol Empire', 'Feudal Japan'] },
+        { id: 'late-medieval', name: 'Late Medieval', options: ['Black Death', 'Hundred Years War', 'Pre-Renaissance'] }
+      ]
+    },
+    earlyModern: {
+      label: 'Early Modern',
+      period: '1500 - 1800',
+      subPeriods: [
+        { id: 'renaissance', name: 'Renaissance', options: ['Italian City-States', 'Northern Renaissance', 'Age of Art'] },
+        { id: 'age-of-exploration', name: 'Age of Exploration', options: ['New World Discovery', 'Maritime Empires', 'Cultural Exchange'] },
+        { id: 'colonial-era', name: 'Colonial Era', options: ['Empire Building', 'Trade Routes', 'Revolutionary Period'] }
+      ]
+    },
+    modern: {
+      label: 'Modern',
+      period: '1800 - Present',
+      subPeriods: [
+        { id: 'industrial-age', name: 'Industrial Age', options: ['Steam Power', 'Mass Production', 'Urban Growth'] },
+        { id: 'world-wars', name: 'World Wars', options: ['Pre-War Tension', 'Wartime', 'Post-War Recovery'] },
+        { id: 'contemporary', name: 'Contemporary', options: ['Digital Age', 'Globalization', 'Current Events'] }
+      ]
+    },
+    nearFuture: {
+      label: 'Near Future',
+      period: 'Next 100 years',
+      subPeriods: [
+        { id: 'early-21st', name: 'Early 21st Century', options: ['Tech Revolution', 'Climate Change', 'Social Shifts'] },
+        { id: 'mid-21st', name: 'Mid 21st Century', options: ['AI Integration', 'Space Colonization', 'Genetic Engineering'] },
+        { id: 'late-21st', name: 'Late 21st Century', options: ['Post-Scarcity', 'Global Transformation', 'Transhumanism'] }
+      ]
+    },
+    farFuture: {
+      label: 'Far Future',
+      period: 'Beyond 100 years',
+      subPeriods: [
+        { id: 'solar-system', name: 'Solar System Era', options: ['Mars Colonies', 'Asteroid Mining', 'Solar Engineering'] },
+        { id: 'interstellar', name: 'Interstellar Period', options: ['First Contact', 'Colony Ships', 'Alien Relations'] },
+        { id: 'galactic', name: 'Galactic Era', options: ['Multiple Species', 'FTL Travel', 'Advanced Tech'] }
+      ]
+    }
+  };
+
+  const nonLinearOptions = {
+    multipleTimePeriods: {
+      label: 'Multiple Time Periods',
+      options: [
+        'Dual Timeline (Past/Present)',
+        'Multiple Eras',
+        'Time Loops'
+      ]
+    },
+    timeTravel: {
+      label: 'Time Travel',
+      options: [
+        'Fixed Timeline',
+        'Branching Timeline',
+        'Paradox-free'
+      ]
+    },
+    alternativeHistory: {
+      label: 'Alternative History',
+      options: [
+        'Minor Deviation',
+        'Major Divergence',
+        'Complete Reimagining'
+      ]
+    }
+  };
 
   const handleContinue = () => {
     setAnimate(false);
@@ -400,6 +494,97 @@ const WorldBuilding: React.FC = () => {
     </div>
   );
 
+  const renderSubPeriodOptions = () => {
+    if (!selectedTimePeriod) return null;
+
+    const periodKey = selectedTimePeriod as keyof typeof timePeriods;
+    const period = timePeriods[periodKey];
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-8 space-y-6"
+      >
+        <Label className="text-lg font-medium text-slate-900">
+          Select a specific era within {period.label}
+        </Label>
+        <div className="grid grid-cols-1 gap-4">
+          {period.subPeriods.map((subPeriod) => (
+            <motion.div
+              key={subPeriod.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div
+                onClick={() => setSelectedSubPeriod(subPeriod.id)}
+                className={cn(
+                  "p-6 rounded-xl border bg-white/50 backdrop-blur transition-all duration-300",
+                  "hover:shadow-lg hover:scale-[1.02] cursor-pointer",
+                  selectedSubPeriod === subPeriod.id
+                    ? 'border-indigo-600 ring-2 ring-indigo-100 shadow-md'
+                    : 'border-slate-200 hover:border-slate-300'
+                )}
+              >
+                <h4 className="font-medium text-lg mb-2">{subPeriod.name}</h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {subPeriod.options.map((option, idx) => (
+                    <div
+                      key={idx}
+                      className="text-sm px-3 py-1 rounded-full bg-slate-100 text-slate-600"
+                    >
+                      {option}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
+
+  const renderNonLinearOptions = () => {
+    if (!selectedTimePeriod) return null;
+
+    const option = nonLinearOptions[selectedTimePeriod as keyof typeof nonLinearOptions];
+
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mt-8 space-y-6"
+      >
+        <Label className="text-lg font-medium text-slate-900">
+          Select a variation of {option.label}
+        </Label>
+        <div className="grid grid-cols-1 gap-4">
+          {option.options.map((opt, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div
+                onClick={() => setSelectedSubPeriod(opt)}
+                className={cn(
+                  "p-6 rounded-xl border bg-white/50 backdrop-blur transition-all duration-300",
+                  "hover:shadow-lg hover:scale-[1.02] cursor-pointer",
+                  selectedSubPeriod === opt
+                    ? 'border-indigo-600 ring-2 ring-indigo-100 shadow-md'
+                    : 'border-slate-200 hover:border-slate-300'
+                )}
+              >
+                <h4 className="font-medium text-lg">{opt}</h4>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+    );
+  };
+
   const renderTimePeriodFramework = () => (
     <div className="space-y-8">
       {!selectedTimelineType ? (
@@ -438,7 +623,11 @@ const WorldBuilding: React.FC = () => {
             </Label>
             <Button
               variant="ghost"
-              onClick={() => setSelectedTimelineType(null)}
+              onClick={() => {
+                setSelectedTimelineType(null);
+                setSelectedTimePeriod(null);
+                setSelectedSubPeriod(null);
+              }}
               className="text-slate-600"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -448,111 +637,69 @@ const WorldBuilding: React.FC = () => {
 
           {selectedTimelineType === 'linear' ? (
             <div className="grid grid-cols-2 gap-6">
-              {[
-                {
-                  id: 'prehistoric',
-                  label: 'Prehistoric',
-                  period: 'Before 3000 BCE',
-                  description: 'Early human civilization and development',
-                  icon: History
-                },
-                {
-                  id: 'ancient',
-                  label: 'Ancient',
-                  period: '3000 BCE - 500 CE',
-                  description: 'Rise of early civilizations and empires',
-                  icon: Castle
-                },
-                {
-                  id: 'medieval',
-                  label: 'Medieval',
-                  period: '500 - 1500 CE',
-                  description: 'Middle Ages and feudal systems',
-                  icon: Castle
-                },
-                {
-                  id: 'early-modern',
-                  label: 'Early Modern',
-                  period: '1500 - 1800',
-                  description: 'Renaissance and Age of Exploration',
-                  icon: Calendar
-                },
-                {
-                  id: 'modern',
-                  label: 'Modern',
-                  period: '1800 - Present',
-                  description: 'Industrial Revolution to Digital Age',
-                  icon: Building2
-                },
-                {
-                  id: 'near-future',
-                  label: 'Near Future',
-                  period: 'Next 100 years',
-                  description: 'Technological advancement and social change',
-                  icon: Rocket
-                },
-                {
-                  id: 'far-future',
-                  label: 'Far Future',
-                  period: 'Beyond 100 years',
-                  description: 'Space colonization and advanced civilization',
-                  icon: Globe2
-                }
-              ].map(period => (
+              {Object.entries(timePeriods).map(([key, period]) => (
                 <motion.div
-                  key={period.id}
+                  key={key}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="col-span-1"
                 >
                   <TimeLineButton
                     label={period.label}
-                    description={`${period.period} - ${period.description}`}
-                    icon={period.icon}
-                    isSelected={selectedTimePeriod === period.id}
-                    onClick={() => setSelectedTimePeriod(period.id)}
+                    description={`${period.period}`}
+                    icon={Calendar}
+                    isSelected={selectedTimePeriod === key}
+                    onClick={() => {
+                      setSelectedTimePeriod(key);
+                      setSelectedSubPeriod(null);
+                    }}
                   />
                 </motion.div>
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-6">
-              {[
-                {
-                  id: 'multiple-periods',
-                  label: 'Multiple Time Periods',
-                  description: 'Story spans across different eras',
-                  icon: TimerReset
-                },
-                {
-                  id: 'time-travel',
-                  label: 'Time Travel',
-                  description: 'Characters move between different times',
-                  icon: History
-                },
-                {
-                  id: 'alternative-history',
-                  label: 'Alternative History',
-                  description: 'Divergent historical timelines',
-                  icon: Boxes
-                }
-              ].map(option => (
+              {Object.entries(nonLinearOptions).map(([key, option]) => (
                 <motion.div
-                  key={option.id}
+                  key={key}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="col-span-1"
                 >
                   <TimeLineButton
                     label={option.label}
-                    description={option.description}
-                    icon={option.icon}
-                    isSelected={selectedTimePeriod === option.id}
-                    onClick={() => setSelectedTimePeriod(option.id)}
+                    description="Choose this temporal structure"
+                    icon={History}
+                    isSelected={selectedTimePeriod === key}
+                    onClick={() => {
+                      setSelectedTimePeriod(key);
+                      setSelectedSubPeriod(null);
+                    }}
                   />
                 </motion.div>
               ))}
             </div>
+          )}
+
+          {selectedTimelineType === 'linear' ? renderSubPeriodOptions() : renderNonLinearOptions()}
+
+          {/* Continue Button */}
+          {selectedTimePeriod && selectedSubPeriod && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex justify-end mt-8"
+            >
+              <Button
+                onClick={() => {
+                  // Handle continuation to the next step
+                  console.log('Continue to next step');
+                }}
+                className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
+              >
+                Continue
+              </Button>
+            </motion.div>
           )}
         </motion.div>
       )}
@@ -577,7 +724,7 @@ const WorldBuilding: React.FC = () => {
 
       {/* Main Content */}
       <div className="pt-28 pb-16 max-w-6xl mx-auto px-6">
-        {currentStep === 'category' && (
+        {currentStep === 'category' ? (
           <>
             {/* Category Selection */}
             {!selectedMainCategory && (
@@ -719,9 +866,7 @@ const WorldBuilding: React.FC = () => {
               </motion.div>
             )}
           </>
-        )}
-
-        {currentStep === 'time_period' && (
+        ) : (
           <motion.div
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
@@ -737,6 +882,9 @@ const WorldBuilding: React.FC = () => {
                   setAnimate(false);
                   setTimeout(() => {
                     setCurrentStep('category');
+                    setSelectedTimelineType(null);
+                    setSelectedTimePeriod(null);
+                    setSelectedSubPeriod(null);
                     setAnimate(true);
                   }, 300);
                 }}
