@@ -17,8 +17,10 @@ import {
   Sun,
   Atom
 } from 'lucide-react';
+import { useLocation } from 'wouter';
 
 const NovelCreation = () => {
+  const [, navigate] = useLocation();
   const [step, setStep] = useState(1);
   const [title, setTitle] = useState('');
   const [novelLength, setNovelLength] = useState(null);
@@ -166,6 +168,11 @@ const NovelCreation = () => {
   ];
 
   const handleNext = () => {
+    if (step === 2 && selectedGenre && selectedSubgenres.length > 0) {
+      navigate('/world-building');
+      return;
+    }
+
     setAnimate(false);
     setTimeout(() => {
       setStep(prevStep => prevStep + 1);
@@ -367,6 +374,7 @@ const NovelCreation = () => {
           ))}
         </div>
         
+
         {/* Subgenres Section */}
         {selectedGenre && showSubgenres && (
           <div className="mt-8 animate-in slide-in-from-bottom duration-500 ease-out">
@@ -376,6 +384,7 @@ const NovelCreation = () => {
                 <span className="text-sm text-slate-600">{selectedSubgenres.length}/2 selected</span>
               </div>
               
+
               {/* Pure Subgenres */}
               <div className="space-y-3">
                 <Label className="text-sm font-medium text-slate-700">Genre Variations</Label>
