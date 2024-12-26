@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   Building2,
   Trees,
@@ -23,7 +24,13 @@ import {
   CalendarDays,
   Calendar,
   History,
-  TimerReset
+  TimerReset,
+  Wand2,
+  Cpu,
+  Users,
+  TreePine,
+  Globe,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
@@ -152,15 +159,32 @@ const TimeLineButton: React.FC<{
   </div>
 );
 
+interface WorldSystemState {
+  magicLevel: number;
+  technologyLevel: number;
+  socialComplexity: number;
+  environmentalDiversity: number;
+  culturalRange: number;
+  supernaturalPresence: number;
+}
+
 const WorldBuilding: React.FC = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState<'contained' | 'expansive' | null>(null);
   const [selectedSetting, setSelectedSetting] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [animate, setAnimate] = useState(true);
-  const [currentStep, setCurrentStep] = useState<'category' | 'time_period'>('category');
+  const [currentStep, setCurrentStep] = useState<'category' | 'time_period' | 'world_system'>('category');
   const [selectedTimelineType, setSelectedTimelineType] = useState<'linear' | 'nonlinear' | null>(null);
   const [selectedTimePeriod, setSelectedTimePeriod] = useState<string | null>(null);
   const [selectedSubPeriod, setSelectedSubPeriod] = useState<string | null>(null);
+  const [worldSystem, setWorldSystem] = useState<WorldSystemState>({
+    magicLevel: 0,
+    technologyLevel: 50,
+    socialComplexity: 50,
+    environmentalDiversity: 50,
+    culturalRange: 50,
+    supernaturalPresence: 0
+  });
 
   const containedSettings: SettingOption[] = [
     {
@@ -683,7 +707,6 @@ const WorldBuilding: React.FC = () => {
 
           {selectedTimelineType === 'linear' ? renderSubPeriodOptions() : renderNonLinearOptions()}
 
-          {/* Continue Button */}
           {selectedTimePeriod && selectedSubPeriod && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -692,8 +715,7 @@ const WorldBuilding: React.FC = () => {
             >
               <Button
                 onClick={() => {
-                  // Handle continuation to the next step
-                  console.log('Continue to next step');
+                  setCurrentStep('world_system');
                 }}
                 className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
               >
@@ -706,9 +728,177 @@ const WorldBuilding: React.FC = () => {
     </div>
   );
 
+  const getMagicLevelDescription = (value: number) => {
+    if (value <= 10) return "No magic, purely mundane world";
+    if (value <= 25) return "Folk tales and superstition only";
+    if (value <= 50) return "Limited magic, rare but powerful";
+    if (value <= 75) return "Common magic, integrated into daily life";
+    if (value <= 90) return "High magic shapes society and culture";
+    return "Reality-bending magical saturation";
+  };
+
+  const getTechnologyLevelDescription = (value: number) => {
+    if (value <= 10) return "Stone tools and basic crafts";
+    if (value <= 25) return "Early metallurgy and simple machines";
+    if (value <= 50) return "Industrial age equivalency";
+    if (value <= 75) return "Modern to near-future technology";
+    if (value <= 90) return "Advanced sci-fi tech";
+    return "Clarke's Law tech indistinguishable from magic";
+  };
+
+  const renderWorldSystemSliders = () => (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="space-y-12"
+    >
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <Label className="text-lg font-medium text-slate-900">
+            Configure World System Parameters
+          </Label>
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setCurrentStep('time_period');
+            }}
+            className="text-slate-600"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Timeline
+          </Button>
+        </div>
+
+        <div className="space-y-8">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Wand2 className="w-5 h-5 text-indigo-600" />
+                <Label>Magic Level</Label>
+              </div>
+              <span className="text-sm text-slate-600">{worldSystem.magicLevel}%</span>
+            </div>
+            <Slider
+              value={[worldSystem.magicLevel]}
+              onValueChange={([value]) => setWorldSystem(prev => ({ ...prev, magicLevel: value }))}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-600">{getMagicLevelDescription(worldSystem.magicLevel)}</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Cpu className="w-5 h-5 text-indigo-600" />
+                <Label>Technology Level</Label>
+              </div>
+              <span className="text-sm text-slate-600">{worldSystem.technologyLevel}%</span>
+            </div>
+            <Slider
+              value={[worldSystem.technologyLevel]}
+              onValueChange={([value]) => setWorldSystem(prev => ({ ...prev, technologyLevel: value }))}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-600">{getTechnologyLevelDescription(worldSystem.technologyLevel)}</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Users className="w-5 h-5 text-indigo-600" />
+                <Label>Social Complexity</Label>
+              </div>
+              <span className="text-sm text-slate-600">{worldSystem.socialComplexity}%</span>
+            </div>
+            <Slider
+              value={[worldSystem.socialComplexity]}
+              onValueChange={([value]) => setWorldSystem(prev => ({ ...prev, socialComplexity: value }))}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-600">Placeholder description</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <TreePine className="w-5 h-5 text-indigo-600" />
+                <Label>Environmental Diversity</Label>
+              </div>
+              <span className="text-sm text-slate-600">{worldSystem.environmentalDiversity}%</span>
+            </div>
+            <Slider
+              value={[worldSystem.environmentalDiversity]}
+              onValueChange={([value]) => setWorldSystem(prev => ({ ...prev, environmentalDiversity: value }))}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-600">Placeholder description</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Globe className="w-5 h-5 text-indigo-600" />
+                <Label>Cultural Range</Label>
+              </div>
+              <span className="text-sm text-slate-600">{worldSystem.culturalRange}%</span>
+            </div>
+            <Slider
+              value={[worldSystem.culturalRange]}
+              onValueChange={([value]) => setWorldSystem(prev => ({ ...prev, culturalRange: value }))}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-600">Placeholder description</p>
+          </div>
+
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Sparkles className="w-5 h-5 text-indigo-600" />
+                <Label>Supernatural Presence</Label>
+              </div>
+              <span className="text-sm text-slate-600">{worldSystem.supernaturalPresence}%</span>
+            </div>
+            <Slider
+              value={[worldSystem.supernaturalPresence]}
+              onValueChange={([value]) => setWorldSystem(prev => ({ ...prev, supernaturalPresence: value }))}
+              max={100}
+              step={1}
+              className="w-full"
+            />
+            <p className="text-sm text-slate-600">Placeholder description</p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex justify-end mt-8"
+          >
+            <Button
+              onClick={() => {
+                console.log('Continue to Cultural Elements');
+              }}
+              className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
+            >
+              Continue to Cultural Elements
+            </Button>
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
-      {/* Header */}
       <div className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-lg border-b border-slate-200 z-10">
         <div className="max-w-6xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -722,11 +912,9 @@ const WorldBuilding: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="pt-28 pb-16 max-w-6xl mx-auto px-6">
         {currentStep === 'category' ? (
           <>
-            {/* Category Selection */}
             {!selectedMainCategory && (
               <motion.div
                 className={cn(
@@ -821,7 +1009,6 @@ const WorldBuilding: React.FC = () => {
               </motion.div>
             )}
 
-            {/* Setting Options */}
             {selectedMainCategory && (
               <motion.div
                 className={cn(
@@ -848,7 +1035,6 @@ const WorldBuilding: React.FC = () => {
                 </div>
                 {renderSettingOptions(selectedMainCategory === 'contained' ? containedSettings : expansiveSettings)}
 
-                {/* Continue Button */}
                 {selectedSetting && selectedVariant && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -866,7 +1052,7 @@ const WorldBuilding: React.FC = () => {
               </motion.div>
             )}
           </>
-        ) : (
+        ) : currentStep === 'time_period' ? (
           <motion.div
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
@@ -896,6 +1082,8 @@ const WorldBuilding: React.FC = () => {
             </div>
             {renderTimePeriodFramework()}
           </motion.div>
+        ) : (
+          renderWorldSystemSliders()
         )}
       </div>
     </div>
