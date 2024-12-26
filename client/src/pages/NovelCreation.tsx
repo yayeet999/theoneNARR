@@ -96,6 +96,72 @@ const NovelCreation = () => {
         hybrid: ['Techno-Thriller', 'Legal Thriller', 'Medical Thriller'],
         style: ['Espionage', 'Conspiracy Thriller', 'Supernatural Thriller']
       }
+    },
+    { 
+      id: 'horror', 
+      label: 'Horror', 
+      icon: Ghost, 
+      desc: 'Intended to frighten or disturb',
+      subgenres: {
+        pure: ['Supernatural Horror', 'Psychological Horror', 'Gothic Horror'],
+        hybrid: ['Cosmic Horror', 'Folk Horror', 'Body Horror'],
+        style: ['Slasher', 'Haunted House', 'Survival Horror']
+      }
+    },
+    { 
+      id: 'historical', 
+      label: 'Historical Fiction', 
+      icon: Clock, 
+      desc: 'Set in past historical periods',
+      subgenres: {
+        pure: ['Ancient History', 'Medieval', 'Renaissance'],
+        hybrid: ['Historical Romance', 'Historical Mystery', 'Alternative History'],
+        style: ['Biographical Fiction', 'Military Historical', 'Social Historical']
+      }
+    },
+    { 
+      id: 'adventure', 
+      label: 'Adventure', 
+      icon: Map, 
+      desc: 'Action-focused journeys',
+      subgenres: {
+        pure: ['Exploration', 'Survival', 'Quest'],
+        hybrid: ['Historical Adventure', 'Science Adventure', 'Fantasy Adventure'],
+        style: ['Sea Adventure', 'Wilderness', 'Lost World']
+      }
+    },
+    { 
+      id: 'contemporary', 
+      label: 'Contemporary Fiction', 
+      icon: Sun, 
+      desc: 'Modern-day realistic stories',
+      subgenres: {
+        pure: ['Slice of Life', 'Urban Life', 'Family Drama'],
+        hybrid: ['Contemporary Romance', 'Social Issues', 'Cultural'],
+        style: ['Literary Contemporary', 'New Adult', 'Domestic Fiction']
+      }
+    },
+    { 
+      id: 'satire', 
+      label: 'Satire', 
+      icon: PenTool, 
+      desc: 'Social commentary through humor',
+      subgenres: {
+        pure: ['Political Satire', 'Social Satire', 'Cultural Satire'],
+        hybrid: ['Satirical Fantasy', 'Satirical Science Fiction', 'Dark Comedy'],
+        style: ['Parody', 'Black Comedy', 'Absurdist']
+      }
+    },
+    { 
+      id: 'speculative', 
+      label: 'Speculative Fiction', 
+      icon: Atom, 
+      desc: 'Alternative realities',
+      subgenres: {
+        pure: ['Alternate History', 'Dystopian', 'Utopian'],
+        hybrid: ['Magical Realism', 'Slipstream', 'Climate Fiction'],
+        style: ['Weird Fiction', 'New Weird', 'Metaphysical']
+      }
     }
   ];
 
