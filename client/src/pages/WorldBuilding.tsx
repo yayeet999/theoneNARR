@@ -19,7 +19,11 @@ import {
   Compass,
   Building,
   LayoutGrid,
-  Trees as TreesIcon
+  Trees as TreesIcon,
+  CalendarDays,
+  Calendar,
+  History,
+  TimerReset
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
@@ -113,12 +117,49 @@ const CategoryVisual: React.FC<CategoryVisualProps> = ({ type }) => {
   );
 };
 
+const TimeLineButton: React.FC<{
+  label: string;
+  description: string;
+  icon: React.ElementType;
+  isSelected: boolean;
+  onClick: () => void;
+}> = ({ label, description, icon: Icon, isSelected, onClick }) => (
+  <div
+    onClick={onClick}
+    className={cn(
+      "w-full p-6 rounded-xl border bg-white/50 backdrop-blur transition-all duration-300",
+      "hover:shadow-lg hover:scale-[1.02] cursor-pointer",
+      isSelected
+        ? 'border-indigo-600 ring-2 ring-indigo-100 shadow-md scale-[1.02]'
+        : 'border-slate-200 hover:border-slate-300'
+    )}
+  >
+    <div className="flex items-center space-x-4">
+      <Icon className={cn(
+        "w-8 h-8 transition-colors duration-300",
+        isSelected ? 'text-indigo-600' : 'text-slate-400'
+      )} />
+      <div>
+        <h3 className={cn(
+          "font-medium text-lg transition-colors duration-300",
+          isSelected ? 'text-indigo-600' : 'text-slate-900'
+        )}>
+          {label}
+        </h3>
+        <p className="text-sm text-slate-500">{description}</p>
+      </div>
+    </div>
+  </div>
+);
+
 const WorldBuilding: React.FC = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState<'contained' | 'expansive' | null>(null);
   const [selectedSetting, setSelectedSetting] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [animate, setAnimate] = useState(true);
   const [currentStep, setCurrentStep] = useState<'category' | 'time_period'>('category');
+  const [selectedTimelineType, setSelectedTimelineType] = useState<'linear' | 'nonlinear' | null>(null);
+  const [selectedTimePeriod, setSelectedTimePeriod] = useState<string | null>(null);
 
   const containedSettings: SettingOption[] = [
     {
@@ -359,6 +400,165 @@ const WorldBuilding: React.FC = () => {
     </div>
   );
 
+  const renderTimePeriodFramework = () => (
+    <div className="space-y-8">
+      {!selectedTimelineType ? (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <Label className="text-lg font-medium text-slate-900">Choose your timeline structure</Label>
+          <div className="grid grid-cols-2 gap-8">
+            <TimeLineButton
+              label="Linear Timeline"
+              description="Sequential progression through specific time periods"
+              icon={CalendarDays}
+              isSelected={selectedTimelineType === 'linear'}
+              onClick={() => setSelectedTimelineType('linear')}
+            />
+            <TimeLineButton
+              label="Non-Linear Timeline"
+              description="Complex time structures with multiple periods or alternative histories"
+              icon={History}
+              isSelected={selectedTimelineType === 'nonlinear'}
+              onClick={() => setSelectedTimelineType('nonlinear')}
+            />
+          </div>
+        </motion.div>
+      ) : (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="flex items-center justify-between">
+            <Label className="text-lg font-medium text-slate-900">
+              Select your {selectedTimelineType === 'linear' ? 'time period' : 'temporal structure'}
+            </Label>
+            <Button
+              variant="ghost"
+              onClick={() => setSelectedTimelineType(null)}
+              className="text-slate-600"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back to Timeline Type
+            </Button>
+          </div>
+
+          {selectedTimelineType === 'linear' ? (
+            <div className="grid grid-cols-2 gap-6">
+              {[
+                {
+                  id: 'prehistoric',
+                  label: 'Prehistoric',
+                  period: 'Before 3000 BCE',
+                  description: 'Early human civilization and development',
+                  icon: History
+                },
+                {
+                  id: 'ancient',
+                  label: 'Ancient',
+                  period: '3000 BCE - 500 CE',
+                  description: 'Rise of early civilizations and empires',
+                  icon: Castle
+                },
+                {
+                  id: 'medieval',
+                  label: 'Medieval',
+                  period: '500 - 1500 CE',
+                  description: 'Middle Ages and feudal systems',
+                  icon: Castle
+                },
+                {
+                  id: 'early-modern',
+                  label: 'Early Modern',
+                  period: '1500 - 1800',
+                  description: 'Renaissance and Age of Exploration',
+                  icon: Calendar
+                },
+                {
+                  id: 'modern',
+                  label: 'Modern',
+                  period: '1800 - Present',
+                  description: 'Industrial Revolution to Digital Age',
+                  icon: Building2
+                },
+                {
+                  id: 'near-future',
+                  label: 'Near Future',
+                  period: 'Next 100 years',
+                  description: 'Technological advancement and social change',
+                  icon: Rocket
+                },
+                {
+                  id: 'far-future',
+                  label: 'Far Future',
+                  period: 'Beyond 100 years',
+                  description: 'Space colonization and advanced civilization',
+                  icon: Globe2
+                }
+              ].map(period => (
+                <motion.div
+                  key={period.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="col-span-1"
+                >
+                  <TimeLineButton
+                    label={period.label}
+                    description={`${period.period} - ${period.description}`}
+                    icon={period.icon}
+                    isSelected={selectedTimePeriod === period.id}
+                    onClick={() => setSelectedTimePeriod(period.id)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-6">
+              {[
+                {
+                  id: 'multiple-periods',
+                  label: 'Multiple Time Periods',
+                  description: 'Story spans across different eras',
+                  icon: TimerReset
+                },
+                {
+                  id: 'time-travel',
+                  label: 'Time Travel',
+                  description: 'Characters move between different times',
+                  icon: History
+                },
+                {
+                  id: 'alternative-history',
+                  label: 'Alternative History',
+                  description: 'Divergent historical timelines',
+                  icon: Boxes
+                }
+              ].map(option => (
+                <motion.div
+                  key={option.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="col-span-1"
+                >
+                  <TimeLineButton
+                    label={option.label}
+                    description={option.description}
+                    icon={option.icon}
+                    isSelected={selectedTimePeriod === option.id}
+                    onClick={() => setSelectedTimePeriod(option.id)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      )}
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
@@ -527,7 +727,6 @@ const WorldBuilding: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             className="space-y-8"
           >
-            {/* Time Period Framework UI will be implemented here in the next iteration */}
             <div className="flex items-center justify-between">
               <Label className="text-lg font-medium text-slate-900">
                 Choose your time period
@@ -547,6 +746,7 @@ const WorldBuilding: React.FC = () => {
                 Back to Settings
               </Button>
             </div>
+            {renderTimePeriodFramework()}
           </motion.div>
         )}
       </div>
