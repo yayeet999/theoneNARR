@@ -13,9 +13,16 @@ import {
   Boxes,
   ChevronRight,
   Globe2,
-  ArrowLeft
+  ArrowLeft,
+  Home,
+  Map as MapIcon,
+  Compass,
+  Building,
+  LayoutGrid,
+  Trees as TreesIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from "framer-motion";
 
 interface SettingOption {
   id: string;
@@ -28,6 +35,79 @@ interface SettingOption {
     description: string;
   }>;
 }
+
+const CategoryVisual = ({ type }: { type: 'contained' | 'expansive' }) => {
+  const containerVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.5,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 }
+  };
+
+  if (type === 'contained') {
+    return (
+      <motion.div
+        className="relative h-48 mb-8 rounded-xl overflow-hidden bg-gradient-to-br from-indigo-50 to-slate-50"
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="relative w-full max-w-md">
+            <motion.div variants={itemVariants} className="absolute left-1/4 top-0">
+              <Building className="w-12 h-12 text-indigo-400" />
+            </motion.div>
+            <motion.div variants={itemVariants} className="absolute left-1/2 top-1/4">
+              <Home className="w-10 h-10 text-indigo-500" />
+            </motion.div>
+            <motion.div variants={itemVariants} className="absolute right-1/4 top-0">
+              <LayoutGrid className="w-12 h-12 text-indigo-600" />
+            </motion.div>
+            <motion.div variants={itemVariants} className="absolute left-1/3 bottom-0">
+              <TreesIcon className="w-10 h-10 text-indigo-400" />
+            </motion.div>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  return (
+    <motion.div
+      className="relative h-48 mb-8 rounded-xl overflow-hidden bg-gradient-to-br from-violet-50 to-slate-50"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="relative w-full max-w-md">
+          <motion.div variants={itemVariants} className="absolute left-1/4 top-0">
+            <Globe2 className="w-12 h-12 text-violet-400" />
+          </motion.div>
+          <motion.div variants={itemVariants} className="absolute left-1/2 top-1/4">
+            <Compass className="w-10 h-10 text-violet-500" />
+          </motion.div>
+          <motion.div variants={itemVariants} className="absolute right-1/4 top-0">
+            <MapIcon className="w-12 h-12 text-violet-600" />
+          </motion.div>
+          <motion.div variants={itemVariants} className="absolute left-1/3 bottom-0">
+            <Rocket className="w-10 h-10 text-violet-400" />
+          </motion.div>
+        </div>
+      </div>
+    </motion.div>
+  );
+};
 
 const WorldBuilding = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState<'contained' | 'expansive' | null>(null);
@@ -286,57 +366,107 @@ const WorldBuilding = () => {
       <div className="pt-28 pb-16 max-w-6xl mx-auto px-6">
         {/* Category Selection */}
         {!selectedMainCategory && (
-          <div className={cn(
-            "space-y-8 transition-all duration-500",
-            animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
-          )}>
+          <motion.div
+            className={cn(
+              "space-y-8 transition-all duration-500",
+              animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+            )}
+          >
             <div className="space-y-6">
               <Label className="text-lg font-medium text-slate-900">Choose your setting category</Label>
               <div className="grid grid-cols-2 gap-8">
-                <button
-                  onClick={() => handleCategorySelect('contained')}
-                  className="group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
-                    transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  <div className="flex flex-col items-center space-y-4">
-                    <Building2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
-                    <div className="text-center">
-                      <h3 className="text-lg font-medium text-slate-900">Contained Settings</h3>
-                      <p className="mt-2 text-sm text-slate-500">
-                        Focused, well-defined locations perfect for intimate storytelling
-                      </p>
-                    </div>
-                  </div>
-                </button>
+                <div className="space-y-6">
+                  <CategoryVisual type="contained" />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    <button
+                      onClick={() => handleCategorySelect('contained')}
+                      className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
+                        transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      <div className="flex flex-col items-center space-y-4">
+                        <Building2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
+                        <div className="text-center">
+                          <h3 className="text-lg font-medium text-slate-900">Contained Settings</h3>
+                          <p className="mt-2 text-sm text-slate-500">
+                            Focused, well-defined locations perfect for intimate storytelling
+                          </p>
+                          <ul className="mt-4 text-sm text-slate-600 space-y-2">
+                            <li className="flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
+                              Single location focus
+                            </li>
+                            <li className="flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
+                              Detailed environment
+                            </li>
+                            <li className="flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
+                              Character-driven narratives
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </button>
+                  </motion.div>
+                </div>
 
-                <button
-                  onClick={() => handleCategorySelect('expansive')}
-                  className="group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
-                    transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
-                    focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                >
-                  <div className="flex flex-col items-center space-y-4">
-                    <Globe2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
-                    <div className="text-center">
-                      <h3 className="text-lg font-medium text-slate-900">Expansive Settings</h3>
-                      <p className="mt-2 text-sm text-slate-500">
-                        Broad, encompassing worlds ideal for epic narratives
-                      </p>
-                    </div>
-                  </div>
-                </button>
+                <div className="space-y-6">
+                  <CategoryVisual type="expansive" />
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                  >
+                    <button
+                      onClick={() => handleCategorySelect('expansive')}
+                      className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
+                        transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
+                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    >
+                      <div className="flex flex-col items-center space-y-4">
+                        <Globe2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
+                        <div className="text-center">
+                          <h3 className="text-lg font-medium text-slate-900">Expansive Settings</h3>
+                          <p className="mt-2 text-sm text-slate-500">
+                            Broad, encompassing worlds ideal for epic narratives
+                          </p>
+                          <ul className="mt-4 text-sm text-slate-600 space-y-2">
+                            <li className="flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
+                              Multiple interconnected locations
+                            </li>
+                            <li className="flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
+                              Rich world-building opportunities
+                            </li>
+                            <li className="flex items-center">
+                              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
+                              Epic-scale adventures
+                            </li>
+                          </ul>
+                        </div>
+                      </div>
+                    </button>
+                  </motion.div>
+                </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {/* Setting Options */}
         {selectedMainCategory && (
-          <div className={cn(
-            "space-y-8 transition-all duration-500",
-            animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
-          )}>
+          <motion.div
+            className={cn(
+              "space-y-8 transition-all duration-500",
+              animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+            )}
+          >
             <div className="flex items-center justify-between">
               <Label className="text-lg font-medium text-slate-900">
                 {selectedMainCategory === 'contained' ? 'Choose your contained setting' : 'Choose your expansive setting'}
@@ -355,7 +485,7 @@ const WorldBuilding = () => {
               </Button>
             </div>
             {renderSettingOptions(selectedMainCategory === 'contained' ? containedSettings : expansiveSettings)}
-          </div>
+          </motion.div>
         )}
       </div>
     </div>
