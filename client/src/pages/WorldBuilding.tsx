@@ -535,14 +535,14 @@ const WorldBuilding: React.FC = () => {
               {isSelected && (
                 <div className="mt-6 grid grid-cols-2 gap-4 animate-in slide-in-from-top duration-500">
                   {setting.variants.map((variant) => (
-                    <button
+                    <div
                       key={variant.id}
                       onClick={(e) => {
                         e.stopPropagation();
                         handleVariantSelect(variant.id);
                       }}
                       className={cn(
-                        "p-4 rounded-lg text-left transition-all duration-300",
+                        "p-4 rounded-lg text-left transition-all duration-300 cursor-pointer",
                         "hover:shadow-md hover:scale-[1.02]",
                         "focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2",
                         selectedVariant === variant.id
@@ -552,7 +552,7 @@ const WorldBuilding: React.FC = () => {
                     >
                       <div className="font-medium text-sm text-slate-900">{variant.name}</div>
                       <div className="mt-1 text-xs text-slate-500">{variant.description}</div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
