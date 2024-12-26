@@ -725,30 +725,30 @@ const WorldBuilding: React.FC = () => {
                   />
                 </motion.div>
               ))}
-            </</div>
+            </div>
           ) : (
             <div className="grid grid-cols-2 gap-6">
-              {Object.entries(nonLinearOptions).map(([key, option]) => (
-                <motion.div
-                  key={key}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="col-span-1"
-                >
-                  <TimeLineButton
-                    label={option.label}
-                    description="Choose this temporal structure"
-                    icon={History}
-                    isSelected={selectedTimePeriod === key}
-                    onClick={() => {
-                      setSelectedTimePeriod(key);
-                      setSelectedSubPeriod(null);
-                    }}
-                  />
-                </motion.div>
-              ))}
-            </div>
-          )}
+                {Object.entries(nonLinearOptions).map(([key, option]) => (
+                  <motion.div
+                    key={key}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="col-span-1"
+                  >
+                    <TimeLineButton
+                      label={option.label}
+                      description="Choose this temporal structure"
+                      icon={History}
+                      isSelected={selectedTimePeriod === key}
+                      onClick={() => {
+                        setSelectedTimePeriod(key);
+                        setSelectedSubPeriod(null);
+                      }}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
 
           {selectedTimelineType === 'linear' ? renderSubPeriodOptions() : renderNonLinearOptions()}
 
