@@ -1,0 +1,381 @@
+This document is meant to serve as a master reference for how the UI/UX should be structured for the 'World Building Stage' which comes after and is based on the genre/subgenre selections, what elements appear, how they transition, and how they adapt based on previously selected specific genre/subgenre options.
+
+---
+
+# WORLD BUILDING STAGE (After Genre/Subgenre Selection)
+
+## 1. PRIMARY SETTING SELECTION
+
+After the user finishes selecting a **genre** and **subgenre**, the interface transitions smoothly into the **World Building** stage. The first step here is selecting the **Primary Setting**, presented as two broad categories:
+
+### A. **Contained Settings**
+1. **Urban**  
+   - Modern City (Contemporary/Thriller)  
+   - Cyberpunk Metropolis (Sci-Fi)  
+   - Medieval Town (Fantasy/Historical)  
+   - Steampunk City (Alternative)  
+   - Underground City (Speculative)  
+   - Ghost Town (Horror)
+
+2. **Rural**  
+   - Modern Countryside (Contemporary)  
+   - Frontier Settlement (Historical)  
+   - Enchanted Forest (Fantasy)  
+   - Agricultural Colony (Sci-Fi)  
+   - Cursed Village (Horror)  
+   - Post-apocalyptic Wilderness (Speculative)
+
+3. **Maritime**  
+   - Modern Port City (Contemporary)  
+   - Pirate Haven (Historical/Adventure)  
+   - Underwater City (Sci-Fi/Fantasy)  
+   - Flying Ship Port (Fantasy)  
+   - Haunted Harbor (Horror)  
+   - Arctic Research Station (Thriller)
+
+4. **Underground**  
+   - Modern Subway System (Contemporary)  
+   - Ancient Catacombs (Historical)  
+   - Dwarven Kingdom (Fantasy)  
+   - Subterranean Colony (Sci-Fi)  
+   - Horror Tunnels (Horror)  
+   - Secret Bunker Network (Thriller)
+
+### B. **Expansive Settings**
+1. **Fantasy Realms**  
+   - High Fantasy Kingdom  
+   - Floating Islands  
+   - Mythical Lands  
+   - Parallel Magic World  
+   - Elemental Planes  
+   - Spirit Realm  
+
+2. **Science Fiction Environments**  
+   - Space Station  
+   - Colony World  
+   - Virtual Reality  
+   - Dyson Sphere  
+   - Generation Ship  
+   - Alien Homeworld  
+
+3. **Historical Periods**  
+   - Ancient Empire  
+   - Medieval Kingdom  
+   - Renaissance City-State  
+   - Colonial Territory  
+   - Industrial Revolution  
+   - World War Era  
+
+4. **Alternative Worlds**  
+   - Parallel Universe  
+   - Alternate Timeline  
+   - Pocket Dimension  
+   - Dream World  
+   - Mirror Reality  
+   - Quantum Realm  
+
+---
+
+## 2. TIME PERIOD FRAMEWORK
+
+After the user selects a **Primary Setting**, the interface reveals the **Time Period** options. These appear in a smooth slide/fade animation from the right, showing either **linear** or **non-linear** frameworks. The UI adapts to the chosen **genre** (for example, Sci-Fi emphasizing future periods, Historical focusing on past eras, etc.).
+
+### A. **Linear Timelines**
+
+1. **Prehistoric (Before 3000 BCE)**  
+   - Stone Age  
+     - Early Hunter-Gatherer  
+     - First Settlements  
+     - Cave Painting Era  
+   - Bronze Age  
+     - Early Metallurgy  
+     - First Cities  
+     - Trade Networks  
+   - Iron Age  
+     - Warrior Cultures  
+     - Empire Building  
+     - Technological Revolution  
+
+2. **Ancient (3000 BCE - 500 CE)**  
+   - Early Civilizations  
+     - Mesopotamian Era  
+     - Egyptian Dynasties  
+     - Indus Valley  
+   - Classical Period  
+     - Greek City-States  
+     - Roman Republic  
+     - Han Dynasty  
+   - Late Antiquity  
+     - Empire Decline  
+     - Religious Shifts  
+     - Barbarian Migrations  
+
+3. **Medieval (500 - 1500 CE)**  
+   - Early Medieval  
+     - Dark Ages  
+     - Byzantine Empire  
+     - Islamic Golden Age  
+   - High Medieval  
+     - Crusader Kingdoms  
+     - Mongol Empire  
+     - Feudal Japan  
+   - Late Medieval  
+     - Black Death  
+     - Hundred Years War  
+     - Pre-Renaissance  
+
+4. **Early Modern (1500 - 1800)**  
+   - Renaissance  
+     - Italian City-States  
+     - Northern Renaissance  
+     - Age of Art  
+   - Age of Exploration  
+     - New World Discovery  
+     - Maritime Empires  
+     - Cultural Exchange  
+   - Colonial Era  
+     - Empire Building  
+     - Trade Routes  
+     - Revolutionary Period  
+
+5. **Modern (1800 - Present)**  
+   - Industrial Age  
+     - Steam Power  
+     - Mass Production  
+     - Urban Growth  
+   - World Wars  
+     - Pre-War Tension  
+     - Wartime  
+     - Post-War Recovery  
+   - Contemporary  
+     - Digital Age  
+     - Globalization  
+     - Current Events  
+
+6. **Near Future (Next 100 years)**  
+   - Early 21st Century  
+     - Tech Revolution  
+     - Climate Change  
+     - Social Shifts  
+   - Mid 21st Century  
+     - AI Integration  
+     - Space Colonization  
+     - Genetic Engineering  
+   - Late 21st Century  
+     - Post-Scarcity  
+     - Global Transformation  
+     - Transhumanism  
+
+7. **Far Future**  
+   - Solar System Era  
+     - Mars Colonies  
+     - Asteroid Mining  
+     - Solar Engineering  
+   - Interstellar Period  
+     - First Contact  
+     - Colony Ships  
+     - Alien Relations  
+   - Galactic Era  
+     - Multiple Species  
+     - FTL Travel  
+     - Advanced Tech  
+
+### B. **Non-Linear Options**
+1. **Multiple Time Periods**  
+   - Dual Timeline (e.g., Past/Present, Present/Future, Past/Future)  
+   - Multiple Eras (three or more)  
+   - Time Loops (recurring events, causal loops)  
+
+2. **Time Travel**  
+   - Fixed Timeline  
+   - Branching Timeline  
+   - Paradox-free  
+
+3. **Alternative History**  
+   - Minor Deviation  
+   - Major Divergence  
+   - Complete Reimagining  
+
+---
+
+## 3. WORLD SYSTEM SLIDERS
+
+After the user locks in the **Primary Setting** and **Time Period**, the system displays a set of sliders to configure various aspects of the world. Each slider ranges from **0 to 100**, and the UI shows a short descriptive label for different ranges (e.g., 0-25, 26-50, etc.). The default values and labeling may adapt based on genre.
+
+1. **Magic Level (0-100)**  
+   - 0-10: "No magic, purely mundane world"  
+   - 11-25: "Folk tales and superstition only"  
+   - 26-50: "Limited magic, rare but powerful"  
+   - 51-75: "Common magic, integrated into daily life"  
+   - 76-90: "High magic shapes society and culture"  
+   - 91-100: "Reality-bending magical saturation"  
+   *Genre Adaptations*:  
+   - Fantasy: Typically starts around 51-75  
+   - Historical: Often starts 0-25  
+   - Sci-Fi: Sometimes relabeled as “Unexplained Phenomena”  
+   - Horror: Could pivot to emphasize “Supernatural” scale  
+
+2. **Technology Level (0-100)**  
+   - 0-10: "Stone tools and basic crafts"  
+   - 11-25: "Early metallurgy and simple machines"  
+   - 26-50: "Industrial age equivalency"  
+   - 51-75: "Modern to near-future technology"  
+   - 76-90: "Advanced sci-fi tech"  
+   - 91-100: "Clarke's Law tech indistinguishable from magic"  
+   *Genre Adaptations*:  
+   - Sci-Fi: Often starts around 76-100  
+   - Historical: Could be locked to era-appropriate range  
+   - Fantasy: Might be inversely tied to Magic Level  
+   - Contemporary: Typically locked 51-75  
+
+3. **Social Complexity (0-100)**  
+   - 0-10: "Individual/family groups only"  
+   - 11-25: "Tribal or small village structure"  
+   - 26-50: "Kingdom or nation-state level"  
+   - 51-75: "Modern complex society"  
+   - 76-90: "Highly advanced social systems"  
+   - 91-100: "Post-human social structures"  
+   *Genre Adaptations*:  
+   - Historical: Era-specific social norms  
+   - Sci-Fi: Could include alien civilizations or futuristic hierarchies  
+   - Fantasy: Might have magical hierarchies  
+
+4. **Environmental Diversity (0-100)**  
+   - 0-10: "Single location, minimal variation"  
+   - 11-25: "Limited area, few environments"  
+   - 26-50: "Multiple connected biomes"  
+   - 51-75: "Wide range of diverse environments"  
+   - 76-90: "Extreme environmental variety"  
+   - 91-100: "Reality-defying environmental diversity"  
+   *Genre Adaptations*:  
+   - Fantasy: Incorporates magical terrains  
+   - Sci-Fi: Might include alien biomes  
+   - Horror: Emphasizes atmospheric or eerie settings  
+   - Historical: Geographically consistent with chosen region  
+
+5. **Cultural Range (0-100)**  
+   - 0-10: "Isolated single culture"  
+   - 11-25: "Dominant culture with minor influences"  
+   - 26-50: "Several interacting cultures"  
+   - 51-75: "Rich multicultural setting"  
+   - 76-90: "Vast cultural tapestry"  
+   - 91-100: "Universal cultural diversity"  
+   *Genre Adaptations*:  
+   - Historical: Reflects historically accurate cultures  
+   - Sci-Fi: Might include alien species or galactic federations  
+   - Fantasy: Could integrate different mythical races  
+
+6. **Supernatural Presence (0-100)**  
+   - *If applicable, especially for Horror or high-fantasy settings.*  
+   - Could scale from “Barely any supernatural” to “Constant supernatural interference.”
+
+---
+
+## 4. CULTURAL ELEMENTS (Final Section)
+
+After setting the **World System Sliders**, an additional pane can slide in, prompting the user to select **cultural influences**. This section can include:
+- Various cultural, ethnic, mythological, or historical influences relevant to the chosen genre and time period.  
+- A visual representation or “tag-style” selection that lets users pick from different real-world or fictional cultures.  
+- If Sci-Fi, may include alien or futuristic cultural elements; if Fantasy, may feature mythological pantheons, etc.
+
+---
+
+## 5. UI & ANIMATION FLOW
+
+### A. **Initial Transition from Genre Selection**
+- Smooth transition from the **Genre** stage to the **World Building** stage.  
+- **Setting Cards** appear in a staggered fashion (50ms delay each) in a grid.  
+- Each card slides up slightly and fades in (opacity 0 to 100 over ~300ms).  
+- On hover, each card scales up (+5%) and shows a subtle glow/shadow.
+
+### B. **Selection Flow**
+
+1. **Primary Setting Selection**  
+   - When the user clicks a card, it **glows** softly and expands slightly.  
+   - A ripple effect or color shift to confirm selection.  
+   - Once selected, the UI slides out or fades out the other cards.  
+   - Then it brings in the **Time Period Framework** from the right with a smooth fade/slide animation.
+
+2. **Time Period Selection**  
+   - The user chooses **Linear** or **Non-Linear** frameworks.  
+   - For Linear: a timeline-based visualization can be shown, letting them hover/click on specific eras.  
+   - For Non-Linear: displays branches or blocks for **Multiple Time Periods**, **Time Travel**, or **Alternative History**.  
+   - On final selection, the UI transitions to show the **World System Sliders**.
+
+3. **World System Sliders**  
+   - Sliders fade in sequentially (e.g., each slider animates in with a 100ms stagger).  
+   - Hovering a slider handle pops up a short descriptive tooltip (e.g., “Common magic, integrated into daily life”).  
+   - Dragging the slider updates the textual description in real time (smooth fade or update).  
+   - Certain sliders may auto-adjust or “lock” if the combination is impossible or if the chosen genre has locked ranges (e.g., Historical locking Tech Level to certain range).
+
+4. **Cultural Elements**  
+   - After the sliders are set, a final “Cultural Elements” section slides in.  
+   - The user can pick from curated cultural, mythological, or historical influences.  
+   - Visual “tag” style selection or a small library of cultural icons.  
+
+### C. **Genre-Based Adaptations**
+1. **Fantasy**  
+   - **Magic Level** slider defaults to mid-high ranges.  
+   - **Time Period** often suggests Medieval or Mythical eras.  
+   - Cultural influences might include mythological pantheons.  
+
+2. **Science Fiction**  
+   - **Technology Level** slider defaults to higher ranges.  
+   - **Time Period** focuses more on Near Future or Far Future.  
+   - May rename “Magic Level” to “Unexplained Phenomena.”  
+   - Cultural influences can include alien species, futuristic societies.  
+
+3. **Historical Fiction**  
+   - **Time Period** emphasizes real past eras (Ancient, Medieval, Early Modern, etc.).  
+   - **Technology Level** locked or limited to historically accurate ranges.  
+   - **Magic Level** typically near 0-25 (unless alternative historical twist).  
+   - Cultural influences revolve around actual historical civilizations.  
+
+4. **Contemporary**  
+   - **Time Period** is generally present-day.  
+   - **Technology Level** locked to modern or near-future scale.  
+   - **Magic Level** typically minimal unless “urban fantasy” twist.  
+   - Cultural influences are current, real-world cultures.  
+
+5. **Horror**  
+   - Might pivot **Magic Level** to “Supernatural” scale.  
+   - Emphasis on atmospheric or haunting settings.  
+   - **Cultural Elements** could include folklore, haunting legends, or occult influences.  
+
+---
+
+## 6. RESPONSIVE & SMART BEHAVIORS
+
+1. **Genre-Based Defaults**  
+   - When a genre is selected, relevant settings are highlighted; others appear at 50% opacity.  
+   - Sliders self-adjust to recommended “starting points.”  
+   - If a user tries to push a slider range outside plausible boundaries (e.g., forcing very high magic in strictly Historical Fiction), the system can display warnings or highlight that it’s an unusual combo.
+
+2. **Smart Constraints**  
+   - Prevent or flag impossible settings (e.g., Stone Age + Advanced Sci-Fi tech).  
+   - Offer suggestions or lock certain sliders based on time period or setting.  
+   - Provide brief explanations (e.g., “For Early Medieval, technology above 50 is historically inconsistent.”).
+
+3. **Dynamic Updates**  
+   - Real-time previews or short text summaries adjust as sliders change.  
+   - The user sees immediate feedback describing how the world is shaping up.  
+   - Transition animations stay smooth and unobtrusive.
+
+---
+
+## 7. OPTIONAL INTERACTIONS / NEXT STEPS
+
+Depending on the workflow’s needs, the interface can prompt the user:
+
+1. **Deeper Explanation**  
+   - An expanded guide on how transitions/adaptations work behind the scenes.  
+   - Additional notes on hooking this stage into later parts of the novel creation workflow (e.g., character creation, plot outlines, etc.).
+
+2. **Genre/Subgenre Linkage**  
+   - Detailed logic on how each setting/time period interacts with the user’s initial genre and subgenre choice.
+
+---
+
+### END OF COMBINED SPECIFICATION
+
+This single document unifies all pieces of information—from primary setting types and time period frameworks, to world system sliders and UI/animation flows—providing a **comprehensive blueprint** for the **World Building** stage of your novel creation workflow.

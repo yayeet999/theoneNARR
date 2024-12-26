@@ -22,7 +22,7 @@ import {
   Trees as TreesIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SettingOption {
   id: string;
@@ -36,7 +36,11 @@ interface SettingOption {
   }>;
 }
 
-const CategoryVisual = ({ type }: { type: 'contained' | 'expansive' }) => {
+interface CategoryVisualProps {
+  type: 'contained' | 'expansive';
+}
+
+const CategoryVisual: React.FC<CategoryVisualProps> = ({ type }) => {
   const containerVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -109,11 +113,12 @@ const CategoryVisual = ({ type }: { type: 'contained' | 'expansive' }) => {
   );
 };
 
-const WorldBuilding = () => {
+const WorldBuilding: React.FC = () => {
   const [selectedMainCategory, setSelectedMainCategory] = useState<'contained' | 'expansive' | null>(null);
   const [selectedSetting, setSelectedSetting] = useState<string | null>(null);
   const [selectedVariant, setSelectedVariant] = useState<string | null>(null);
   const [animate, setAnimate] = useState(true);
+  const [currentStep, setCurrentStep] = useState<'category' | 'time_period'>('category');
 
   const containedSettings: SettingOption[] = [
     {
@@ -233,6 +238,14 @@ const WorldBuilding = () => {
     }
   ];
 
+  const handleContinue = () => {
+    setAnimate(false);
+    setTimeout(() => {
+      setCurrentStep('time_period');
+      setAnimate(true);
+    }, 300);
+  };
+
   const handleCategorySelect = (category: 'contained' | 'expansive') => {
     setAnimate(false);
     setSelectedVariant(null);
@@ -276,7 +289,7 @@ const WorldBuilding = () => {
               animate ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
               isSelected ? 'col-span-2' : ''
             )}
-            style={{ 
+            style={{
               transitionDelay: animate ? `${index * 100}ms` : '0ms'
             }}
           >
@@ -364,127 +377,176 @@ const WorldBuilding = () => {
 
       {/* Main Content */}
       <div className="pt-28 pb-16 max-w-6xl mx-auto px-6">
-        {/* Category Selection */}
-        {!selectedMainCategory && (
-          <motion.div
-            className={cn(
-              "space-y-8 transition-all duration-500",
-              animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
-            )}
-          >
-            <div className="space-y-6">
-              <Label className="text-lg font-medium text-slate-900">Choose your setting category</Label>
-              <div className="grid grid-cols-2 gap-8">
+        {currentStep === 'category' && (
+          <>
+            {/* Category Selection */}
+            {!selectedMainCategory && (
+              <motion.div
+                className={cn(
+                  "space-y-8 transition-all duration-500",
+                  animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+                )}
+              >
                 <div className="space-y-6">
-                  <CategoryVisual type="contained" />
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <button
-                      onClick={() => handleCategorySelect('contained')}
-                      className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
-                        transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                    >
-                      <div className="flex flex-col items-center space-y-4">
-                        <Building2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
-                        <div className="text-center">
-                          <h3 className="text-lg font-medium text-slate-900">Contained Settings</h3>
-                          <p className="mt-2 text-sm text-slate-500">
-                            Focused, well-defined locations perfect for intimate storytelling
-                          </p>
-                          <ul className="mt-4 text-sm text-slate-600 space-y-2">
-                            <li className="flex items-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
-                              Single location focus
-                            </li>
-                            <li className="flex items-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
-                              Detailed environment
-                            </li>
-                            <li className="flex items-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
-                              Character-driven narratives
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </button>
-                  </motion.div>
-                </div>
+                  <Label className="text-lg font-medium text-slate-900">Choose your setting category</Label>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div className="space-y-6">
+                      <CategoryVisual type="contained" />
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.3 }}
+                      >
+                        <button
+                          onClick={() => handleCategorySelect('contained')}
+                          className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
+                            transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                          <div className="flex flex-col items-center space-y-4">
+                            <Building2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
+                            <div className="text-center">
+                              <h3 className="text-lg font-medium text-slate-900">Contained Settings</h3>
+                              <p className="mt-2 text-sm text-slate-500">
+                                Focused, well-defined locations perfect for intimate storytelling
+                              </p>
+                              <ul className="mt-4 text-sm text-slate-600 space-y-2">
+                                <li className="flex items-center">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
+                                  Single location focus
+                                </li>
+                                <li className="flex items-center">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
+                                  Detailed environment
+                                </li>
+                                <li className="flex items-center">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 mr-2" />
+                                  Character-driven narratives
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </button>
+                      </motion.div>
+                    </div>
 
-                <div className="space-y-6">
-                  <CategoryVisual type="expansive" />
+                    <div className="space-y-6">
+                      <CategoryVisual type="expansive" />
+                      <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.4 }}
+                      >
+                        <button
+                          onClick={() => handleCategorySelect('expansive')}
+                          className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
+                            transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
+                            focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                        >
+                          <div className="flex flex-col items-center space-y-4">
+                            <Globe2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
+                            <div className="text-center">
+                              <h3 className="text-lg font-medium text-slate-900">Expansive Settings</h3>
+                              <p className="mt-2 text-sm text-slate-500">
+                                Broad, encompassing worlds ideal for epic narratives
+                              </p>
+                              <ul className="mt-4 text-sm text-slate-600 space-y-2">
+                                <li className="flex items-center">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
+                                  Multiple interconnected locations
+                                </li>
+                                <li className="flex items-center">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
+                                  Rich world-building opportunities
+                                </li>
+                                <li className="flex items-center">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
+                                  Epic-scale adventures
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </button>
+                      </motion.div>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Setting Options */}
+            {selectedMainCategory && (
+              <motion.div
+                className={cn(
+                  "space-y-8 transition-all duration-500",
+                  animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
+                )}
+              >
+                <div className="flex items-center justify-between">
+                  <Label className="text-lg font-medium text-slate-900">
+                    {selectedMainCategory === 'contained' ? 'Choose your contained setting' : 'Choose your expansive setting'}
+                  </Label>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setSelectedMainCategory(null);
+                      setSelectedSetting(null);
+                      setSelectedVariant(null);
+                    }}
+                    className="text-slate-600"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Back
+                  </Button>
+                </div>
+                {renderSettingOptions(selectedMainCategory === 'contained' ? containedSettings : expansiveSettings)}
+
+                {/* Continue Button */}
+                {selectedSetting && selectedVariant && (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
+                    className="mt-8 flex justify-end"
                   >
-                    <button
-                      onClick={() => handleCategorySelect('expansive')}
-                      className="w-full group relative p-8 rounded-xl border border-slate-200 bg-white/50 backdrop-blur
-                        transition-all duration-500 hover:shadow-lg hover:scale-[1.02] hover:border-slate-300
-                        focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                    <Button
+                      onClick={handleContinue}
+                      className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
                     >
-                      <div className="flex flex-col items-center space-y-4">
-                        <Globe2 className="w-12 h-12 text-slate-400 group-hover:text-slate-600 transition-colors duration-300" />
-                        <div className="text-center">
-                          <h3 className="text-lg font-medium text-slate-900">Expansive Settings</h3>
-                          <p className="mt-2 text-sm text-slate-500">
-                            Broad, encompassing worlds ideal for epic narratives
-                          </p>
-                          <ul className="mt-4 text-sm text-slate-600 space-y-2">
-                            <li className="flex items-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
-                              Multiple interconnected locations
-                            </li>
-                            <li className="flex items-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
-                              Rich world-building opportunities
-                            </li>
-                            <li className="flex items-center">
-                              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 mr-2" />
-                              Epic-scale adventures
-                            </li>
-                          </ul>
-                        </div>
-                      </div>
-                    </button>
+                      Continue to Time Period
+                    </Button>
                   </motion.div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
+                )}
+              </motion.div>
+            )}
+          </>
         )}
 
-        {/* Setting Options */}
-        {selectedMainCategory && (
+        {currentStep === 'time_period' && (
           <motion.div
-            className={cn(
-              "space-y-8 transition-all duration-500",
-              animate ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-full'
-            )}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="space-y-8"
           >
+            {/* Time Period Framework UI will be implemented here in the next iteration */}
             <div className="flex items-center justify-between">
               <Label className="text-lg font-medium text-slate-900">
-                {selectedMainCategory === 'contained' ? 'Choose your contained setting' : 'Choose your expansive setting'}
+                Choose your time period
               </Label>
               <Button
                 variant="ghost"
                 onClick={() => {
-                  setSelectedMainCategory(null);
-                  setSelectedSetting(null);
-                  setSelectedVariant(null);
+                  setAnimate(false);
+                  setTimeout(() => {
+                    setCurrentStep('category');
+                    setAnimate(true);
+                  }, 300);
                 }}
                 className="text-slate-600"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back
+                Back to Settings
               </Button>
             </div>
-            {renderSettingOptions(selectedMainCategory === 'contained' ? containedSettings : expansiveSettings)}
           </motion.div>
         )}
       </div>
