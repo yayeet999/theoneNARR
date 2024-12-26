@@ -212,25 +212,31 @@ const NovelCreation = () => {
 
       {/* Chapter Structure */}
       {showChapterOptions && (
-        <div className={`space-y-8 ${hasShownChapters ? '' : 'animate-in slide-in-from-bottom duration-700 ease-out'}`}>
+        <div 
+          className={`space-y-8 transition-all duration-700 ${
+            hasShownChapters 
+              ? 'opacity-100 translate-y-0' 
+              : 'opacity-0 translate-y-8'
+          }`}
+        >
           <div className="space-y-4">
             <Label className="text-lg text-slate-900">Select chapter structure</Label>
             <div className="grid grid-cols-3 gap-6">
               {[
                 {
-                  label: 'Concise',
+                  label: `${novelLength?.charAt(0).toUpperCase()}${novelLength?.slice(1)} Concise`,
                   description: 'More chapters, shorter length each',
                   chapters: novelLength === 'short' ? '15-20' : novelLength === 'medium' ? '20-25' : '25-35',
                   wordsPer: novelLength === 'short' ? '3000-4000' : novelLength === 'medium' ? '3000-4000' : '3500-4500'
                 },
                 {
-                  label: 'Standard',
+                  label: `${novelLength?.charAt(0).toUpperCase()}${novelLength?.slice(1)} Standard`,
                   description: 'Balanced chapter length',
                   chapters: novelLength === 'short' ? '12-15' : novelLength === 'medium' ? '15-20' : '20-25',
                   wordsPer: novelLength === 'short' ? '4000-5000' : novelLength === 'medium' ? '4000-5500' : '4500-6000'
                 },
                 {
-                  label: 'Extended',
+                  label: `${novelLength?.charAt(0).toUpperCase()}${novelLength?.slice(1)} Extended`,
                   description: 'Fewer chapters, longer length each',
                   chapters: novelLength === 'short' ? '8-12' : novelLength === 'medium' ? '12-15' : '15-20',
                   wordsPer: novelLength === 'short' ? '5000-7500' : novelLength === 'medium' ? '5500-7000' : '6000-8000'
@@ -239,9 +245,9 @@ const NovelCreation = () => {
                 <button
                   key={option.label}
                   onClick={() => setChapterStructure(option.label.toLowerCase())}
-                  className={`p-6 rounded-xl border transition-all duration-300 hover:shadow-lg group ${
+                  className={`p-6 rounded-xl border transition-all duration-500 transform hover:scale-[1.02] hover:shadow-lg group ${
                     chapterStructure === option.label.toLowerCase()
-                      ? 'border-indigo-600 ring-2 ring-indigo-100 bg-white'
+                      ? 'border-indigo-600 ring-2 ring-indigo-100 bg-white shadow-md scale-[1.02]'
                       : 'border-slate-200 hover:border-slate-300 bg-white'
                   }`}
                 >
