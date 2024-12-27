@@ -16,6 +16,7 @@ import {
   Heart,
   Save
 } from 'lucide-react';
+import cn from 'classnames';
 
 interface Relationship {
   id: string;
@@ -130,42 +131,126 @@ const Relationships: React.FC<RelationshipsProps> = ({
 
       {/* Relationship Graph Visualization */}
       <div className="bg-slate-50 p-6 rounded-lg mb-6">
-        <h4 className="text-sm font-medium text-slate-700 mb-4">Relationship Network</h4>
-        <div className="relative h-[300px] border border-slate-200 rounded-lg bg-white">
+        <h4 className="text-sm font-medium text-slate-700 mb-4">Character Relationship Network</h4>
+        <div className="relative h-[400px] border border-slate-200 rounded-lg bg-white overflow-hidden">
+          {/* Central character */}
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <div className="bg-indigo-100 p-3 rounded-full border-2 border-indigo-500 shadow-lg">
+              <Users className="w-6 h-6 text-indigo-600" />
+            </div>
+          </div>
+
+          {/* Relationship connections */}
           {relationships.map((rel, index) => {
             const targetChar = availableCharacters.find(c => c.id === rel.targetCharacter);
             if (!targetChar) return null;
 
             const angle = (2 * Math.PI * index) / relationships.length;
-            const radius = 120; // Adjust based on container size
-            const x = 150 + radius * Math.cos(angle);
-            const y = 150 + radius * Math.sin(angle);
+            const radius = 160; // Increased radius for better spacing
+            const x = 200 + radius * Math.cos(angle);
+            const y = 200 + radius * Math.sin(angle);
+
+            // Calculate connection strength for line thickness
+            const strength = (rel.attributes.trustLevel + rel.attributes.emotionalBond) / 2;
+            const lineThickness = 1 + (strength / 100) * 4; // 1-5px based on strength
+
+            // Calculate connection color based on relationship type
+            const getConnectionColor = (type: string) => {
+              switch (type) {
+                case 'family': return 'rgba(59, 130, 246, 0.5)'; // blue
+                case 'friend': return 'rgba(16, 185, 129, 0.5)'; // green
+                case 'rival': return 'rgba(239, 68, 68, 0.5)'; // red
+                case 'mentor': return 'rgba(139, 92, 246, 0.5)'; // purple
+                case 'student': return 'rgba(245, 158, 11, 0.5)'; // amber
+                case 'ally': return 'rgba(14, 165, 233, 0.5)'; // sky
+                case 'enemy': return 'rgba(190, 18, 60, 0.5)'; // rose
+                case 'romantic': return 'rgba(236, 72, 153, 0.5)'; // pink
+                default: return 'rgba(156, 163, 175, 0.5)'; // gray
+              }
+            };
 
             return (
-              <div
-                key={rel.id}
-                className="absolute transform -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${x}px`, top: `${y}px` }}
-              >
-                <div className="bg-white p-2 rounded-lg shadow-sm border border-slate-200">
-                  <div className="flex items-center space-x-2">
-                    {React.createElement(relationshipTypes[rel.type].icon, {
-                      className: "w-4 h-4 text-slate-600"
-                    })}
-                    <span className="text-sm font-medium">{targetChar.name}</span>
-                  </div>
-                  <div className="text-xs text-slate-500">{relationshipTypes[rel.type].label}</div>
-                </div>
+              <React.Fragment key={rel.id}>
+                {/* Connection line */}
                 <div
-                  className="absolute left-1/2 top-1/2 h-px bg-slate-200"
+                  className="absolute top-1/2 left-1/2 origin-left h-px transform -translate-y-1/2"
                   style={{
                     width: `${radius}px`,
-                    transform: `rotate(${angle}rad)`
+                    transform: `rotate(${angle}rad)`,
+                    backgroundColor: getConnectionColor(rel.type),
+                    height: `${lineThickness}px`,
+                    opacity: 0.8,
                   }}
                 />
-              </div>
+
+                {/* Character node */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: index * 0.1 }}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 z-10"
+                  style={{ left: `${x}px`, top: `${y}px` }}
+                >
+                  <div className="relative group">
+                    <div className={cn(
+                      "bg-white p-3 rounded-lg shadow-md border-2",
+                      "transform transition-transform duration-200 group-hover:scale-110",
+                      rel.attributes.powerDynamic > 25 ? "border-green-400" :
+                      rel.attributes.powerDynamic < -25 ? "border-red-400" :
+                      "border-slate-200"
+                    )}>
+                      <div className="flex items-center space-x-2">
+                        {React.createElement(relationshipTypes[rel.type].icon, {
+                          className: "w-4 h-4 text-slate-600"
+                        })}
+                        <span className="text-sm font-medium">{targetChar.name}</span>
+                      </div>
+                      <div className="text-xs text-slate-500 mt-1">{relationshipTypes[rel.type].label}</div>
+                    </div>
+
+                    {/* Relationship details tooltip */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none">
+                      <div className="bg-white rounded-lg shadow-lg p-3 text-sm w-48">
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Trust:</span>
+                            <span className="font-medium">{rel.attributes.trustLevel}%</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Power:</span>
+                            <span className={cn(
+                              "font-medium",
+                              rel.attributes.powerDynamic > 0 ? "text-green-600" :
+                              rel.attributes.powerDynamic < 0 ? "text-red-600" :
+                              "text-slate-600"
+                            )}>
+                              {rel.attributes.powerDynamic > 0 ? "+" : ""}{rel.attributes.powerDynamic}
+                            </span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-slate-500">Bond:</span>
+                            <span className="font-medium">{rel.attributes.emotionalBond}%</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </React.Fragment>
             );
           })}
+
+          {/* Legend */}
+          <div className="absolute bottom-2 right-2 bg-white/90 p-2 rounded-lg shadow-sm text-xs">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+              {Object.entries(relationshipTypes).map(([type, { label, icon: Icon }]) => (
+                <div key={type} className="flex items-center space-x-1">
+                  <Icon className="w-3 h-3" />
+                  <span>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 

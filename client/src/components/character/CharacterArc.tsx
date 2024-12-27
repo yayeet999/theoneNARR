@@ -37,6 +37,7 @@ interface ArcEvent {
   description: string;
   impact: 'positive' | 'negative' | 'neutral';
   intensity: number;
+  timelinePosition: number; // 0-100 representing position in story
 }
 
 interface Props {
@@ -80,27 +81,31 @@ export const CharacterArc: React.FC<Props> = ({
   const [newEvent, setNewEvent] = useState<Partial<ArcEvent>>({
     type: 'emotional_beat',
     impact: 'positive',
-    intensity: 5
+    intensity: 5,
+    timelinePosition: 50
   });
 
   const handleAddEvent = () => {
-    if (newEvent.type && newEvent.description && newEvent.impact && newEvent.intensity !== undefined) {
+    if (newEvent.type && newEvent.description && newEvent.impact && newEvent.intensity !== undefined && newEvent.timelinePosition !== undefined) {
       const event: ArcEvent = {
         id: Math.random().toString(36).substr(2, 9),
         type: newEvent.type as ArcEvent['type'],
         description: newEvent.description,
         impact: newEvent.impact as ArcEvent['impact'],
-        intensity: newEvent.intensity
+        intensity: newEvent.intensity,
+        timelinePosition: newEvent.timelinePosition
       };
 
-      const updatedEvents = [...events, event];
+      // Sort events by timeline position
+      const updatedEvents = [...events, event].sort((a, b) => a.timelinePosition - b.timelinePosition);
       setEvents(updatedEvents);
       onArcUpdate({ arcType, events: updatedEvents });
 
       setNewEvent({
         type: 'emotional_beat',
         impact: 'positive',
-        intensity: 5
+        intensity: 5,
+        timelinePosition: 50
       });
     }
   };
@@ -114,6 +119,14 @@ export const CharacterArc: React.FC<Props> = ({
   const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => {
     setArcType(type);
     onArcUpdate({ arcType: type, events });
+  };
+
+  // Get chapter label based on timeline position
+  const getChapterLabel = (position: number) => {
+    if (position <= 25) return 'Introduction';
+    if (position <= 50) return 'Rising Action';
+    if (position <= 75) return 'Climax';
+    return 'Resolution';
   };
 
   return (
@@ -130,17 +143,23 @@ export const CharacterArc: React.FC<Props> = ({
                 key={type.id}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`
-                  p-4 rounded-xl border cursor-pointer transition-all duration-300
-                  ${arcType === type.id 
+                className={cn(
+                  "p-4 rounded-xl border cursor-pointer transition-all duration-300",
+                  arcType === type.id 
                     ? 'border-indigo-600 bg-indigo-50 shadow-sm' 
-                    : 'border-slate-200 hover:border-slate-300'}
-                `}
+                    : 'border-slate-200 hover:border-slate-300'
+                )}
                 onClick={() => handleArcTypeChange(type.id as 'positive' | 'negative' | 'flat')}
               >
                 <div className="flex items-center space-x-3 mb-2">
-                  <Icon className={`w-5 h-5 ${arcType === type.id ? 'text-indigo-600' : 'text-slate-400'}`} />
-                  <h3 className={`font-medium ${arcType === type.id ? 'text-indigo-600' : 'text-slate-900'}`}>
+                  <Icon className={cn(
+                    "w-5 h-5",
+                    arcType === type.id ? "text-indigo-600" : "text-slate-400"
+                  )} />
+                  <h3 className={cn(
+                    "font-medium",
+                    arcType === type.id ? "text-indigo-600" : "text-slate-900"
+                  )}>
                     {type.name}
                   </h3>
                 </div>
@@ -171,6 +190,14 @@ export const CharacterArc: React.FC<Props> = ({
             {/* Timeline Visualization */}
             <div className="space-y-4">
               <div className="relative">
+                {/* Chapter markers */}
+                <div className="absolute -top-6 left-0 right-0 flex justify-between text-xs text-slate-500">
+                  <span>Introduction</span>
+                  <span>Rising Action</span>
+                  <span>Climax</span>
+                  <span>Resolution</span>
+                </div>
+
                 {/* Timeline line */}
                 <div className="absolute left-0 right-0 h-1 bg-slate-200 top-1/2 transform -translate-y-1/2" />
 
@@ -181,18 +208,18 @@ export const CharacterArc: React.FC<Props> = ({
                   arcType === 'positive' ? 'bg-gradient-to-r from-blue-500 via-green-500 to-emerald-500' :
                   arcType === 'negative' ? 'bg-gradient-to-r from-blue-500 via-orange-500 to-red-500' :
                   'bg-gradient-to-r from-blue-500 to-blue-500'
-                )} style={{ width: `${(events.length / 10) * 100}%` }} />
+                )} style={{ width: '100%' }} />
 
                 {/* Event markers */}
                 <div className="relative h-24 py-2">
-                  {events.map((event, index) => (
+                  {events.map((event) => (
                     <motion.div
                       key={event.id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="absolute top-1/2 transform -translate-y-1/2 group"
                       style={{ 
-                        left: `${(index / Math.max(events.length - 1, 1)) * 100}%`,
+                        left: `${event.timelinePosition}%`
                       }}
                     >
                       {/* Event marker */}
@@ -223,7 +250,7 @@ export const CharacterArc: React.FC<Props> = ({
                         <div className="bg-white rounded-lg shadow-lg p-3 text-sm w-64">
                           <div className="font-medium mb-1">{event.description}</div>
                           <div className="flex items-center justify-between text-xs text-slate-500">
-                            <span>Type: {event.type.replace('_', ' ')}</span>
+                            <span>Chapter: {getChapterLabel(event.timelinePosition)}</span>
                             <span>Intensity: {event.intensity}</span>
                           </div>
                           <div className={cn(
@@ -242,13 +269,6 @@ export const CharacterArc: React.FC<Props> = ({
                     </motion.div>
                   ))}
                 </div>
-              </div>
-
-              {/* Timeline labels */}
-              <div className="flex justify-between text-sm text-slate-500">
-                <span>Story Beginning</span>
-                <span>Story Progression</span>
-                <span>Story Conclusion</span>
               </div>
             </div>
 
@@ -305,7 +325,23 @@ export const CharacterArc: React.FC<Props> = ({
               </div>
 
               <div>
-                <Label>Event Intensity</Label>
+                <Label>Story Timeline Position ({getChapterLabel(newEvent.timelinePosition || 0)})</Label>
+                <div className="pt-4">
+                  <Slider
+                    value={[newEvent.timelinePosition || 50]}
+                    onValueChange={([value]) => setNewEvent(prev => ({ 
+                      ...prev, 
+                      timelinePosition: value
+                    }))}
+                    min={0}
+                    max={100}
+                    step={1}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>Event Intensity (1-10)</Label>
                 <div className="pt-4">
                   <Slider
                     value={[newEvent.intensity || 5]}
@@ -341,15 +377,16 @@ export const CharacterArc: React.FC<Props> = ({
                 >
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      <span className={`w-2 h-2 rounded-full ${
+                      <span className={cn(
+                        "w-2 h-2 rounded-full",
                         event.impact === 'positive' ? 'bg-green-500' :
                         event.impact === 'negative' ? 'bg-red-500' :
                         'bg-blue-500'
-                      }`} />
+                      )} />
                       <p className="text-sm font-medium">{event.description}</p>
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      Impact: {event.impact} | Intensity: {event.intensity}
+                      Chapter: {getChapterLabel(event.timelinePosition)} | Impact: {event.impact} | Intensity: {event.intensity}
                     </p>
                   </div>
                   <Button
