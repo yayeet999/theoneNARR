@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 import BackgroundStory from '@/components/character/BackgroundStory';
 import MotivationsGoals from '@/components/character/MotivationsGoals';
 import Relationships from '@/components/character/Relationships';
-import StrengthsFlaws from '@/components/character/StrengthsFlaws'; // Added import
+import StrengthsFlaws from '@/components/character/StrengthsFlaws';
+import CharacterArc from '@/components/character/CharacterArc'; // Added import
 import {
   UserPlus,
   Users,
@@ -44,6 +45,10 @@ interface Character {
     minorStrengths: Trait[];
     majorFlaws: Trait[];
     minorFlaws: Trait[];
+  };
+  arc?: {
+    type: 'positive' | 'negative' | 'flat';
+    events: ArcEvent[];
   };
 }
 
@@ -81,10 +86,18 @@ interface Relationship {
   };
 }
 
-interface Trait { // Added Trait interface
+interface Trait {
   id: string;
   description: string;
   impact: string;
+}
+
+interface ArcEvent { // Added ArcEvent interface
+  id: string;
+  type: 'emotional_beat' | 'revelation' | 'transformation';
+  description: string;
+  impact: string;
+  position: number;
 }
 
 // Constants
@@ -137,7 +150,8 @@ const CREATION_STEPS = [
   { id: 'role', label: 'Role & Basic Info' },
   { id: 'archetype', label: 'Archetype' },
   { id: 'background', label: 'Background' },
-  { id: 'traits', label: 'Traits' }, // Added traits step
+  { id: 'traits', label: 'Traits' },
+  { id: 'arc', label: 'Character Arc' }, // Added arc step
   { id: 'motivations', label: 'Motivations' },
   { id: 'relationships', label: 'Relationships' }
 ];
@@ -316,10 +330,12 @@ const CharacterCreationHub: React.FC = () => {
   const [primaryMotivation, setPrimaryMotivation] = useState<string>('');
   const [goals, setGoals] = useState<Goal[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>([]);
-  const [majorStrengths, setMajorStrengths] = useState<Trait[]>([]); // Added trait states
+  const [majorStrengths, setMajorStrengths] = useState<Trait[]>([]);
   const [minorStrengths, setMinorStrengths] = useState<Trait[]>([]);
   const [majorFlaws, setMajorFlaws] = useState<Trait[]>([]);
   const [minorFlaws, setMinorFlaws] = useState<Trait[]>([]);
+  const [arcType, setArcType] = useState<'positive' | 'negative' | 'flat'>('positive'); // Added arc state
+  const [arcEvents, setArcEvents] = useState<ArcEvent[]>([]); // Added arc state
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -421,6 +437,18 @@ const CharacterCreationHub: React.FC = () => {
     }
   };
 
+  const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => { // Added arc handler
+    setArcType(type);
+  };
+
+  const handleAddArcEvent = (event: ArcEvent) => { // Added arc handler
+    setArcEvents(prev => [...prev, event]);
+  };
+
+  const handleRemoveArcEvent = (id: string) => { // Added arc handler
+    setArcEvents(prev => prev.filter(event => event.id !== id));
+  };
+
 
   const isBasicInfoComplete = () => {
     return (
@@ -449,6 +477,10 @@ const CharacterCreationHub: React.FC = () => {
         minorStrengths,
         majorFlaws,
         minorFlaws
+      },
+      arc: { // Added arc to new character
+        type: arcType,
+        events: arcEvents
       }
     };
 
@@ -473,6 +505,8 @@ const CharacterCreationHub: React.FC = () => {
     setMinorStrengths([]);
     setMajorFlaws([]);
     setMinorFlaws([]);
+    setArcType('positive'); // Reset arc state
+    setArcEvents([]); // Reset arc state
 
     // Show success notification
     toast({
@@ -786,7 +820,7 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 3 && ( // StrengthsFlaws component added here
+                {currentStep === 3 && (
                   <motion.div
                     key="step-4"
                     initial={{ opacity: 0, x: 20 }}
@@ -819,6 +853,31 @@ const CharacterCreationHub: React.FC = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                   >
+                    <CharacterArc
+                      arcType={arcType}
+                      arcEvents={arcEvents}
+                      onArcTypeChange={handleArcTypeChange}
+                      onAddEvent={handleAddArcEvent}
+                      onRemoveEvent={handleRemoveArcEvent}
+                    />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+                {currentStep === 5 && (
+                  <motion.div
+                    key="step-6"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
                     <MotivationsGoals
                       primaryMotivation={primaryMotivation}
                       onPrimaryMotivationChange={handlePrimaryMotivationChange}
@@ -837,9 +896,9 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 5 && (
+                {currentStep === 6 && (
                   <motion.div
-                    key="step-6"
+                    key="step-7"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
