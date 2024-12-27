@@ -46,6 +46,12 @@ interface CharacterRole {
   typical_traits: string[];
 }
 
+interface LifeEvent {
+  id: string;
+  description: string;
+  // Add other properties as needed
+}
+
 // Constants
 const CHARACTER_ROLES: CharacterRole[] = [
   {
@@ -269,6 +275,7 @@ const CharacterCreationHub: React.FC = () => {
     gender: '',
     description: ''
   });
+  const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -294,6 +301,16 @@ const CharacterCreationHub: React.FC = () => {
       ...prev,
       [e.target.id]: e.target.value
     }));
+  };
+
+  const handleAddLifeEvent = (event: LifeEvent) => {
+    setLifeEvents(prev => [...prev, event]);
+  };
+
+  const handleUpdateLifeEvent = (id: string, updates: Partial<LifeEvent>) => {
+    setLifeEvents(prev => prev.map(event =>
+      event.id === id ? { ...event, ...updates } : event
+    ));
   };
 
   const isBasicInfoComplete = () => {
@@ -597,7 +614,11 @@ const CharacterCreationHub: React.FC = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                   >
-                    <BackgroundStory />
+                    <BackgroundStory
+                      events={lifeEvents}
+                      onEventAdd={handleAddLifeEvent}
+                      onEventUpdate={handleUpdateLifeEvent}
+                    />
                   </motion.div>
                 )}
                 {currentStep === 3 && (
