@@ -9,24 +9,21 @@ import BackgroundStory from '@/components/character/BackgroundStory';
 import MotivationsGoals from '@/components/character/MotivationsGoals';
 import StrengthsFlaws from '@/components/character/StrengthsFlaws';
 import PersonalitySystem from "@/components/character/PersonalitySystem";
+import AdvancedCharacterFeatures from '@/components/character/AdvancedCharacterFeatures';
 import {
   UserPlus,
   Users,
   User,
-  UserCheck,
   Shield,
   Brain,
-  Heart,
-  Smile,
-  AlertCircle,
+  ChevronRight,
+  CheckCircle2,
   Crown,
   Sword,
   BookOpen,
   Zap,
   MessageCircle,
-  Laugh,
-  ChevronRight,
-  CheckCircle2
+  Laugh
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 
@@ -838,7 +835,7 @@ const CharacterCreationHub: React.FC = () => {
                   </motion.div>
                 )}
                 {currentStep === 3 && (
-                  <motion.div                    key="step-4"
+                  <motion.div key="step-4"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -925,25 +922,6 @@ const CharacterCreationHub: React.FC = () => {
           <AdvancedCharacterFeatures characters={characters} />
         )}
       </div>
-    </div>
-  );
-};
-
-
-const AdvancedCharacterFeatures: React.FC<{ characters: Character[] }> = ({ characters }) => {
-  return (
-    <div className="mt-12">
-      <h2 className="text-xl font-semibold text-slate-900 mb-4">Advanced Character Features</h2 >
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {characters.map((character) => (
-          <div key={character.id}>
-            {/* Character Arc */}
-            <h2>{character.name}'s Character Arc</h2>
-            {/* Add components for Arc, Scene Dynamics, and Relationships here */}
-          </div>
-        ))}
-      </div>
-      <p className="mt-4 text-sm text-slate-500">Consider adding more characters to enrich your story.</p>
     </div>
   );
 };

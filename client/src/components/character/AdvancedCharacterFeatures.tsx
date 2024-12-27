@@ -74,7 +74,7 @@ const CharacterMiniCard: React.FC<{
   </motion.div>
 );
 
-const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
+export const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
   const [activeFeature, setActiveFeature] = useState<'arc' | 'dynamics' | 'relationships'>('arc');
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(
     characters.length > 0 ? characters[0].id : null
