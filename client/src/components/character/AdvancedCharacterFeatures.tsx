@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,7 +13,6 @@ interface Character {
   id: string;
   name: string;
   role: string;
-  // ... other character properties
 }
 
 interface Props {
@@ -154,76 +153,94 @@ const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
             </div>
           </div>
 
-          <motion.div
-            key={activeFeature}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            className="mt-8"
-          >
+          <AnimatePresence mode="wait">
             {activeFeature === 'arc' && selectedCharacter && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Character Arc Development</CardTitle>
-                  <CardDescription>
-                    Shape the journey and growth of your character throughout the story
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <CharacterArc
-                    character={characters.find(c => c.id === selectedCharacter)!}
-                    onArcUpdate={(arcData) => {
-                      console.log('Arc updated:', arcData);
-                      // Handle arc update
-                    }}
-                  />
-                </CardContent>
-              </Card>
+              <motion.div
+                key="arc"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="mt-8"
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Character Arc Development</CardTitle>
+                    <CardDescription>
+                      Shape the journey and growth of your character throughout the story
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <CharacterArc
+                      character={characters.find(c => c.id === selectedCharacter)!}
+                      onArcUpdate={(arcData) => {
+                        console.log('Arc updated:', arcData);
+                        // Handle arc update
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
             {activeFeature === 'dynamics' && selectedCharacter && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Scene Dynamics</CardTitle>
-                  <CardDescription>
-                    Explore and define how your character interacts with others in various scenes
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SceneDynamics
-                    sceneInteractions={[]}
-                    powerDynamics={[]}
-                    onAddInteraction={() => {}}
-                    onRemoveInteraction={() => {}}
-                    onAddPowerDynamic={() => {}}
-                    onRemovePowerDynamic={() => {}}
-                  />
-                </CardContent>
-              </Card>
+              <motion.div
+                key="dynamics"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="mt-8"
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Scene Dynamics</CardTitle>
+                    <CardDescription>
+                      Explore and define how your character interacts with others in various scenes
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <SceneDynamics
+                      sceneInteractions={[]}
+                      powerDynamics={[]}
+                      onAddInteraction={() => {}}
+                      onRemoveInteraction={() => {}}
+                      onAddPowerDynamic={() => {}}
+                      onRemovePowerDynamic={() => {}}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
 
             {activeFeature === 'relationships' && selectedCharacter && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Character Relationships</CardTitle>
-                  <CardDescription>
-                    Define and visualize the connections between your characters
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Relationships
-                    relationships={[]}
-                    onRelationshipAdd={() => {}}
-                    onRelationshipUpdate={() => {}}
-                    availableCharacters={characters.map(char => ({
-                      id: char.id,
-                      name: char.name
-                    }))}
-                  />
-                </CardContent>
-              </Card>
+              <motion.div
+                key="relationships"
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="mt-8"
+              >
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Character Relationships</CardTitle>
+                    <CardDescription>
+                      Define and visualize the connections between your characters
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Relationships
+                      relationships={[]}
+                      onRelationshipAdd={() => {}}
+                      onRelationshipUpdate={() => {}}
+                      availableCharacters={characters.map(char => ({
+                        id: char.id,
+                        name: char.name
+                      }))}
+                    />
+                  </CardContent>
+                </Card>
+              </motion.div>
             )}
-          </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </motion.div>
