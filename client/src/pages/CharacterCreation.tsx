@@ -31,7 +31,24 @@ import {
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import PersonalitySystem from "@/components/character/PersonalitySystem"; //Import PersonalitySystem
+import SceneDynamics from '@/components/character/SceneDynamics';
 
+// Add new interfaces
+interface SceneInteraction {
+  id: string;
+  type: 'Conflict' | 'Alliance' | 'Romance' | 'Rivalry' | 'Mentorship' | 'Betrayal';
+  intensity: number;
+  participants: string[];
+  description: string;
+}
+
+interface PowerDynamic {
+  id: string;
+  character: string;
+  authorityLevel: 'Dominant' | 'Equal' | 'Subordinate';
+  influenceType: 'Direct' | 'Social' | 'Knowledge' | 'Resource';
+  description: string;
+}
 
 // Types
 interface Character {
@@ -56,6 +73,10 @@ interface Character {
     traits: PersonalityTrait[];
     beliefs: Belief[];
     emotionalStates: EmotionalState[];
+  };
+  sceneDynamics?: {
+    interactions: SceneInteraction[];
+    powerDynamics: PowerDynamic[];
   };
 }
 
@@ -182,6 +203,7 @@ const CREATION_STEPS = [
   { id: 'traits', label: 'Traits' },
   { id: 'arc', label: 'Character Arc' },
   { id: 'personality', label: 'Personality' },
+  { id: 'scene_dynamics', label: 'Scene Dynamics' },
   { id: 'motivations', label: 'Motivations' },
   { id: 'relationships', label: 'Relationships' }
 ];
@@ -369,6 +391,8 @@ const CharacterCreationHub: React.FC = () => {
   const [personalityTraits, setPersonalityTraits] = useState<PersonalityTrait[]>([]);
   const [beliefs, setBeliefs] = useState<Belief[]>([]);
   const [emotionalStates, setEmotionalStates] = useState<EmotionalState[]>([]);
+  const [sceneInteractions, setSceneInteractions] = useState<SceneInteraction[]>([]);
+  const [powerDynamics, setPowerDynamics] = useState<PowerDynamic[]>([]);
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -507,6 +531,22 @@ const CharacterCreationHub: React.FC = () => {
     setEmotionalStates(prev => prev.filter(s => s.id !== id));
   };
 
+  const handleAddSceneInteraction = (interaction: SceneInteraction) => {
+    setSceneInteractions(prev => [...prev, interaction]);
+  };
+
+  const handleRemoveSceneInteraction = (id: string) => {
+    setSceneInteractions(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleAddPowerDynamic = (dynamic: PowerDynamic) => {
+    setPowerDynamics(prev => [...prev, dynamic]);
+  };
+
+  const handleRemovePowerDynamic = (id: string) => {
+    setPowerDynamics(prev => prev.filter(d => d.id !== id));
+  };
+
   const isBasicInfoComplete = () => {
     return (
       selectedRole &&
@@ -543,6 +583,10 @@ const CharacterCreationHub: React.FC = () => {
         traits: personalityTraits,
         beliefs: beliefs,
         emotionalStates: emotionalStates
+      },
+      sceneDynamics: {
+        interactions: sceneInteractions,
+        powerDynamics: powerDynamics
       }
     };
 
@@ -572,6 +616,8 @@ const CharacterCreationHub: React.FC = () => {
     setPersonalityTraits([]);
     setBeliefs([]);
     setEmotionalStates([]);
+    setSceneInteractions([]);
+    setPowerDynamics([]);
 
     // Show success notification
     toast({
@@ -886,8 +932,7 @@ const CharacterCreationHub: React.FC = () => {
                   </motion.div>
                 )}
                 {currentStep === 3 && (
-                  <motion.div
-                    key="step-4"
+                  <motion.div                    key="step-4"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -972,6 +1017,32 @@ const CharacterCreationHub: React.FC = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                   >
+                    <SceneDynamics
+                      sceneInteractions={sceneInteractions}
+                      powerDynamics={powerDynamics}
+                      onAddInteraction={handleAddSceneInteraction}
+                      onRemoveInteraction={handleRemoveSceneInteraction}
+                      onAddPowerDynamic={handleAddPowerDynamic}
+                      onRemovePowerDynamic={handleRemovePowerDynamic}
+                    />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+                {currentStep === 7 && (
+                  <motion.div
+                    key="step-8"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
                     <MotivationsGoals
                       primaryMotivation={primaryMotivation}
                       onPrimaryMotivationChange={handlePrimaryMotivationChange}
@@ -990,9 +1061,9 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 7 && (
+                {currentStep === 8 && (
                   <motion.div
-                    key="step-8"
+                    key="step-9"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
