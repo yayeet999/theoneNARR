@@ -48,8 +48,15 @@ interface CharacterRole {
 
 interface LifeEvent {
   id: string;
+  type: 'early_life' | 'defining_moment' | 'major_victory' | 'significant_loss';
+  age: number;
   description: string;
-  // Add other properties as needed
+}
+
+interface Goal {
+  id: string;
+  type: 'primary' | 'secondary';
+  description: string;
 }
 
 // Constants
@@ -276,6 +283,8 @@ const CharacterCreationHub: React.FC = () => {
     description: ''
   });
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
+  const [primaryMotivation, setPrimaryMotivation] = useState<string>('');
+  const [goals, setGoals] = useState<Goal[]>([]);
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -310,6 +319,20 @@ const CharacterCreationHub: React.FC = () => {
   const handleUpdateLifeEvent = (id: string, updates: Partial<LifeEvent>) => {
     setLifeEvents(prev => prev.map(event =>
       event.id === id ? { ...event, ...updates } : event
+    ));
+  };
+
+  const handlePrimaryMotivationChange = (motivation: string) => {
+    setPrimaryMotivation(motivation);
+  };
+
+  const handleGoalAdd = (goal: Goal) => {
+    setGoals(prev => [...prev, goal]);
+  };
+
+  const handleGoalUpdate = (id: string, updates: Partial<Goal>) => {
+    setGoals(prev => prev.map(goal =>
+      goal.id === id ? { ...goal, ...updates } : goal
     ));
   };
 
@@ -628,7 +651,13 @@ const CharacterCreationHub: React.FC = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                   >
-                    <MotivationsGoals />
+                    <MotivationsGoals
+                      primaryMotivation={primaryMotivation}
+                      onPrimaryMotivationChange={handlePrimaryMotivationChange}
+                      goals={goals}
+                      onGoalAdd={handleGoalAdd}
+                      onGoalUpdate={handleGoalUpdate}
+                    />
                   </motion.div>
                 )}
               </AnimatePresence>
