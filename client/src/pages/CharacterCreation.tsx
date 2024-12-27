@@ -100,6 +100,45 @@ const CREATION_STEPS = [
   { id: 'relationships', label: 'Relationships' }
 ];
 
+const ARCHETYPES = [
+  {
+    id: 'hero',
+    name: 'Hero',
+    description: 'A brave and moral protagonist who rises to meet challenges',
+    traits: ['Courageous', 'Noble', 'Determined']
+  },
+  {
+    id: 'mentor',
+    name: 'Sage',
+    description: 'A wise guide who shares knowledge and wisdom',
+    traits: ['Wise', 'Patient', 'Knowledgeable']
+  },
+  {
+    id: 'rebel',
+    name: 'Rebel',
+    description: 'One who challenges the established order',
+    traits: ['Independent', 'Passionate', 'Defiant']
+  },
+  {
+    id: 'caregiver',
+    name: 'Caregiver',
+    description: 'Protects and nurtures others',
+    traits: ['Compassionate', 'Selfless', 'Nurturing']
+  },
+  {
+    id: 'trickster',
+    name: 'Trickster',
+    description: 'Uses wit and deception to achieve goals',
+    traits: ['Clever', 'Adaptable', 'Unpredictable']
+  },
+  {
+    id: 'explorer',
+    name: 'Explorer',
+    description: 'Seeks out new experiences and challenges',
+    traits: ['Curious', 'Adventurous', 'Independent']
+  }
+];
+
 // Components
 const CharacterCard: React.FC<{ character: Character; onClick: () => void }> = ({ character, onClick }) => (
   <motion.div
@@ -223,12 +262,15 @@ const CharacterCreationHub: React.FC = () => {
   const [showTutorial, setShowTutorial] = useState(true);
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedArchetype, setSelectedArchetype] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     age: '',
     gender: '',
     description: ''
   });
+
+  const currentCharacterNumber = characters.length + 1;
 
   const handleCreateCharacter = () => {
     setIsCreating(true);
@@ -241,6 +283,10 @@ const CharacterCreationHub: React.FC = () => {
 
   const handleRoleSelect = (roleId: string) => {
     setSelectedRole(roleId);
+  };
+
+  const handleArchetypeSelect = (archetypeId: string) => {
+    setSelectedArchetype(archetypeId);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -318,6 +364,11 @@ const CharacterCreationHub: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto"
           >
+            <div className="mb-8">
+              <h2 className="text-2xl font-semibold text-slate-900">Character {currentCharacterNumber} Creation</h2>
+              <p className="text-slate-500 mt-1">Step {currentStep + 1} of {CREATION_STEPS.length}</p>
+            </div>
+
             {/* Progress Steps */}
             <div className="mb-8">
               <div className="flex justify-between items-center">
@@ -475,10 +526,70 @@ const CharacterCreationHub: React.FC = () => {
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
+                    className="space-y-8"
                   >
-                    {/* Archetype selection will be implemented here */}
+                    <div>
+                      <h2 className="text-2xl font-semibold text-slate-900 mb-6">Character Archetype</h2>
+                      <div className="grid grid-cols-2 gap-4">
+                        {ARCHETYPES.map((archetype) => (
+                          <motion.div
+                            key={archetype.id}
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className={cn(
+                              "p-4 rounded-xl border transition-all duration-300 cursor-pointer",
+                              selectedArchetype === archetype.id
+                                ? "border-indigo-600 bg-indigo-50 shadow-sm"
+                                : "border-slate-200 bg-white hover:border-slate-300"
+                            )}
+                            onClick={() => handleArchetypeSelect(archetype.id)}
+                          >
+                            <h3 className={cn(
+                              "font-medium text-lg",
+                              selectedArchetype === archetype.id ? "text-indigo-600" : "text-slate-900"
+                            )}>{archetype.name}</h3>
+                            <p className="text-sm text-slate-500 mt-1">{archetype.description}</p>
+                            {selectedArchetype === archetype.id && (
+                              <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                className="mt-3"
+                              >
+                                <p className="text-xs font-medium text-slate-700 mb-2">Typical traits:</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {archetype.traits.map((trait, index) => (
+                                    <span
+                                      key={index}
+                                      className="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-700"
+                                    >
+                                      {trait}
+                                    </span>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </motion.div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className={cn(
+                          "bg-indigo-600 hover:bg-indigo-500 text-white px-6",
+                          "transition-all duration-200",
+                          !selectedArchetype && "opacity-50 cursor-not-allowed"
+                        )}
+                        disabled={!selectedArchetype}
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
                   </motion.div>
                 )}
+
                 {currentStep === 2 && (
                   <motion.div
                     key="step-3"
