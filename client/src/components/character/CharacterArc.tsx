@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -22,7 +22,8 @@ import {
   TrendingDown,
   Minus,
   Plus,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import cn from 'classnames';
 
@@ -37,7 +38,8 @@ interface ArcEvent {
   description: string;
   impact: 'positive' | 'negative' | 'neutral';
   intensity: number;
-  timelinePosition: number; // 0-100 representing position in story
+  timelinePosition: number;
+  chapter: 'introduction' | 'rising_action' | 'climax' | 'resolution';
 }
 
 interface Props {
@@ -72,6 +74,31 @@ const ARC_TYPES = [
   }
 ];
 
+const CHAPTERS = [
+  { id: 'introduction', name: 'Introduction', range: [0, 25] },
+  { id: 'rising_action', name: 'Rising Action', range: [26, 50] },
+  { id: 'climax', name: 'Climax', range: [51, 75] },
+  { id: 'resolution', name: 'Resolution', range: [76, 100] }
+];
+
+const EVENT_TYPES = {
+  emotional_beat: {
+    label: 'Emotional Beat',
+    description: 'Character experiences a significant emotional moment',
+    icon: '💭'
+  },
+  revelation: {
+    label: 'Revelation',
+    description: 'Character discovers or realizes something important',
+    icon: '✨'
+  },
+  transformation: {
+    label: 'Transformation',
+    description: 'Character undergoes a significant change',
+    icon: '🔄'
+  }
+};
+
 export const CharacterArc: React.FC<Props> = ({
   character,
   onArcUpdate
@@ -82,51 +109,55 @@ export const CharacterArc: React.FC<Props> = ({
     type: 'emotional_beat',
     impact: 'positive',
     intensity: 5,
-    timelinePosition: 50
+    timelinePosition: 50,
+    chapter: 'rising_action'
   });
+  const [selectedEvent, setSelectedEvent] = useState<string | null>(null);
+
+  const getChapterFromPosition = (position: number): ArcEvent['chapter'] => {
+    if (position <= 25) return 'introduction';
+    if (position <= 50) return 'rising_action';
+    if (position <= 75) return 'climax';
+    return 'resolution';
+  };
 
   const handleAddEvent = () => {
-    if (newEvent.type && newEvent.description && newEvent.impact && newEvent.intensity !== undefined && newEvent.timelinePosition !== undefined) {
-      const event: ArcEvent = {
-        id: Math.random().toString(36).substr(2, 9),
-        type: newEvent.type as ArcEvent['type'],
-        description: newEvent.description,
-        impact: newEvent.impact as ArcEvent['impact'],
-        intensity: newEvent.intensity,
-        timelinePosition: newEvent.timelinePosition
-      };
+    if (!newEvent.type || !newEvent.description || !newEvent.impact) return;
 
-      // Sort events by timeline position
-      const updatedEvents = [...events, event].sort((a, b) => a.timelinePosition - b.timelinePosition);
-      setEvents(updatedEvents);
-      onArcUpdate({ arcType, events: updatedEvents });
+    const event: ArcEvent = {
+      id: Math.random().toString(36).substr(2, 9),
+      type: newEvent.type as ArcEvent['type'],
+      description: newEvent.description,
+      impact: newEvent.impact as ArcEvent['impact'],
+      intensity: newEvent.intensity || 5,
+      timelinePosition: newEvent.timelinePosition || 50,
+      chapter: getChapterFromPosition(newEvent.timelinePosition || 50)
+    };
 
-      setNewEvent({
-        type: 'emotional_beat',
-        impact: 'positive',
-        intensity: 5,
-        timelinePosition: 50
-      });
-    }
+    const updatedEvents = [...events, event].sort((a, b) => a.timelinePosition - b.timelinePosition);
+    setEvents(updatedEvents);
+    onArcUpdate({ arcType, events: updatedEvents });
+
+    // Reset form
+    setNewEvent({
+      type: 'emotional_beat',
+      impact: 'positive',
+      intensity: 5,
+      timelinePosition: 50,
+      chapter: 'rising_action'
+    });
   };
 
   const removeEvent = (id: string) => {
     const updatedEvents = events.filter(e => e.id !== id);
     setEvents(updatedEvents);
     onArcUpdate({ arcType, events: updatedEvents });
+    setSelectedEvent(null);
   };
 
   const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => {
     setArcType(type);
     onArcUpdate({ arcType: type, events });
-  };
-
-  // Get chapter label based on timeline position
-  const getChapterLabel = (position: number) => {
-    if (position <= 25) return 'Introduction';
-    if (position <= 50) return 'Rising Action';
-    if (position <= 75) return 'Climax';
-    return 'Resolution';
   };
 
   return (
@@ -135,6 +166,8 @@ export const CharacterArc: React.FC<Props> = ({
         <h2 className="text-2xl font-semibold text-slate-900 mb-4">
           Character Arc for {character.name}
         </h2>
+
+        {/* Arc Type Selection */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {ARC_TYPES.map((type) => {
             const Icon = type.icon;
@@ -182,223 +215,266 @@ export const CharacterArc: React.FC<Props> = ({
 
       <Card>
         <CardHeader>
-          <CardTitle>Arc Events Timeline</CardTitle>
-          <CardDescription>Add key moments that shape your character's arc</CardDescription>
+          <CardTitle>Story Timeline</CardTitle>
+          <CardDescription>Map out key moments in your character's journey</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {/* Timeline Visualization */}
-            <div className="space-y-4">
-              <div className="relative">
-                {/* Chapter markers */}
-                <div className="absolute -top-6 left-0 right-0 flex justify-between text-xs text-slate-500">
-                  <span>Introduction</span>
-                  <span>Rising Action</span>
-                  <span>Climax</span>
-                  <span>Resolution</span>
-                </div>
+            {/* Chapter Sections */}
+            <div className="relative pt-8">
+              <div className="grid grid-cols-4 gap-px bg-slate-200">
+                {CHAPTERS.map((chapter, index) => (
+                  <div 
+                    key={chapter.id}
+                    className={cn(
+                      "p-4 relative",
+                      index === 0 ? "rounded-l-lg" : "",
+                      index === CHAPTERS.length - 1 ? "rounded-r-lg" : ""
+                    )}
+                  >
+                    <div className="text-center mb-2">
+                      <h4 className="font-medium text-sm text-slate-700">{chapter.name}</h4>
+                      <span className="text-xs text-slate-500">{chapter.range[0]}%-{chapter.range[1]}%</span>
+                    </div>
 
-                {/* Timeline line */}
-                <div className="absolute left-0 right-0 h-1 bg-slate-200 top-1/2 transform -translate-y-1/2" />
+                    {/* Events in this chapter */}
+                    <div className="min-h-[100px] relative">
+                      {events
+                        .filter(event => event.chapter === chapter.id)
+                        .map((event) => (
+                          <motion.div
+                            key={event.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className={cn(
+                              "absolute p-2 rounded-md cursor-pointer transition-all",
+                              "hover:scale-105",
+                              selectedEvent === event.id ? "ring-2 ring-indigo-500" : "",
+                              event.impact === 'positive' ? 'bg-green-100' :
+                              event.impact === 'negative' ? 'bg-red-100' :
+                              'bg-blue-100'
+                            )}
+                            style={{
+                              left: `${((event.timelinePosition - chapter.range[0]) / (chapter.range[1] - chapter.range[0])) * 100}%`,
+                              top: `${(events.indexOf(event) % 3) * 30}px`
+                            }}
+                            onClick={() => setSelectedEvent(event.id)}
+                          >
+                            <span className="text-lg" role="img" aria-label={EVENT_TYPES[event.type].label}>
+                              {EVENT_TYPES[event.type].icon}
+                            </span>
 
-                {/* Timeline progression based on arc type */}
-                <div className={cn(
-                  "absolute left-0 right-0 h-1 top-1/2 transform -translate-y-1/2",
-                  "transition-all duration-500",
-                  arcType === 'positive' ? 'bg-gradient-to-r from-blue-500 via-green-500 to-emerald-500' :
-                  arcType === 'negative' ? 'bg-gradient-to-r from-blue-500 via-orange-500 to-red-500' :
-                  'bg-gradient-to-r from-blue-500 to-blue-500'
-                )} style={{ width: '100%' }} />
+                            {/* Event details tooltip */}
+                            <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 z-10">
+                              <div className="bg-white rounded-lg shadow-lg p-3 text-sm w-64">
+                                <div className="font-medium mb-1">{event.description}</div>
+                                <div className="text-xs text-slate-500">
+                                  <div>Type: {EVENT_TYPES[event.type].label}</div>
+                                  <div>Impact: {event.impact}</div>
+                                  <div>Intensity: {event.intensity}/10</div>
+                                </div>
+                              </div>
+                            </div>
+                          </motion.div>
+                        ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
 
-                {/* Event markers */}
-                <div className="relative h-24 py-2">
-                  {events.map((event) => (
-                    <motion.div
-                      key={event.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="absolute top-1/2 transform -translate-y-1/2 group"
-                      style={{ 
-                        left: `${event.timelinePosition}%`
-                      }}
+              {/* Timeline progress indicator */}
+              <div className={cn(
+                "absolute bottom-0 left-0 h-1 transition-all duration-500",
+                arcType === 'positive' ? 'bg-gradient-to-r from-blue-500 via-green-500 to-emerald-500' :
+                arcType === 'negative' ? 'bg-gradient-to-r from-blue-500 via-orange-500 to-red-500' :
+                'bg-gradient-to-r from-blue-500 to-blue-500'
+              )} style={{ width: `${Math.min(100, (events.length / 12) * 100)}%` }} />
+            </div>
+
+            {/* Event Details Panel */}
+            <AnimatePresence>
+              {selectedEvent && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="bg-slate-50 p-4 rounded-lg"
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <h4 className="font-medium">Event Details</h4>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedEvent(null)}
                     >
-                      {/* Event marker */}
-                      <div 
-                        className={cn(
-                          "w-6 h-6 rounded-full border-2 relative cursor-pointer",
-                          "transition-all duration-200 transform group-hover:scale-110",
-                          event.impact === 'positive' ? 'bg-green-100 border-green-500' :
-                          event.impact === 'negative' ? 'bg-red-100 border-red-500' :
-                          'bg-blue-100 border-blue-500'
-                        )}
-                      >
-                        {/* Event type icon */}
-                        <span className={cn(
-                          "absolute inset-0 flex items-center justify-center text-xs",
-                          event.impact === 'positive' ? 'text-green-600' :
-                          event.impact === 'negative' ? 'text-red-600' :
-                          'text-blue-600'
-                        )}>
-                          {event.type === 'emotional_beat' ? '💭' :
-                           event.type === 'revelation' ? '✨' :
-                           '🔄'}
-                        </span>
-                      </div>
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
 
-                      {/* Event details popup */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                        <div className="bg-white rounded-lg shadow-lg p-3 text-sm w-64">
-                          <div className="font-medium mb-1">{event.description}</div>
-                          <div className="flex items-center justify-between text-xs text-slate-500">
-                            <span>Chapter: {getChapterLabel(event.timelinePosition)}</span>
-                            <span>Intensity: {event.intensity}</span>
+                  {(() => {
+                    const event = events.find(e => e.id === selectedEvent);
+                    if (!event) return null;
+
+                    return (
+                      <div className="space-y-4">
+                        <div>
+                          <Label>Description</Label>
+                          <p className="mt-1 text-sm">{event.description}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>Type</Label>
+                            <p className="mt-1 text-sm">{EVENT_TYPES[event.type].label}</p>
                           </div>
-                          <div className={cn(
-                            "text-xs mt-1",
-                            event.impact === 'positive' ? 'text-green-600' :
-                            event.impact === 'negative' ? 'text-red-600' :
-                            'text-blue-600'
-                          )}>
-                            Impact: {event.impact}
+                          <div>
+                            <Label>Impact</Label>
+                            <p className="mt-1 text-sm capitalize">{event.impact}</p>
                           </div>
                         </div>
-                      </div>
 
-                      {/* Connection line to timeline */}
-                      <div className="absolute top-1/2 left-1/2 w-px h-8 bg-slate-300 transform -translate-x-1/2" />
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
+                        <div>
+                          <Label>Intensity</Label>
+                          <div className="mt-2">
+                            <Slider
+                              value={[event.intensity]}
+                              onValueChange={([value]) => {
+                                const updatedEvents = events.map(e =>
+                                  e.id === event.id ? { ...e, intensity: value } : e
+                                );
+                                setEvents(updatedEvents);
+                                onArcUpdate({ arcType, events: updatedEvents });
+                              }}
+                              min={1}
+                              max={10}
+                              step={1}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => removeEvent(event.id)}
+                          >
+                            <AlertCircle className="w-4 h-4 mr-2" />
+                            Remove Event
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Add New Event Form */}
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>Event Type</Label>
-                  <Select 
-                    value={newEvent.type}
-                    onValueChange={(value: ArcEvent['type']) => 
-                      setNewEvent(prev => ({ ...prev, type: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="emotional_beat">Emotional Beat</SelectItem>
-                      <SelectItem value="revelation">Revelation</SelectItem>
-                      <SelectItem value="transformation">Transformation</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Impact</Label>
-                  <Select
-                    value={newEvent.impact}
-                    onValueChange={(value: ArcEvent['impact']) => 
-                      setNewEvent(prev => ({ ...prev, impact: value }))}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="positive">Positive</SelectItem>
-                      <SelectItem value="negative">Negative</SelectItem>
-                      <SelectItem value="neutral">Neutral</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div>
-                <Label>Event Description</Label>
-                <input
-                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                  value={newEvent.description || ''}
-                  onChange={(e) => setNewEvent(prev => ({ 
-                    ...prev, 
-                    description: e.target.value
-                  }))}
-                  placeholder="Describe the event"
-                />
-              </div>
-
-              <div>
-                <Label>Story Timeline Position ({getChapterLabel(newEvent.timelinePosition || 0)})</Label>
-                <div className="pt-4">
-                  <Slider
-                    value={[newEvent.timelinePosition || 50]}
-                    onValueChange={([value]) => setNewEvent(prev => ({ 
-                      ...prev, 
-                      timelinePosition: value
-                    }))}
-                    min={0}
-                    max={100}
-                    step={1}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <Label>Event Intensity (1-10)</Label>
-                <div className="pt-4">
-                  <Slider
-                    value={[newEvent.intensity || 5]}
-                    onValueChange={([value]) => setNewEvent(prev => ({ 
-                      ...prev, 
-                      intensity: value
-                    }))}
-                    min={1}
-                    max={10}
-                    step={1}
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={handleAddEvent}
-                className="w-full"
-                disabled={!newEvent.type || !newEvent.description || !newEvent.impact}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Event to Timeline
-              </Button>
-            </div>
-
-            {/* Events List */}
-            <div className="space-y-2">
-              {events.map((event) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-start space-x-2 bg-slate-50 p-3 rounded-md"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className={cn(
-                        "w-2 h-2 rounded-full",
-                        event.impact === 'positive' ? 'bg-green-500' :
-                        event.impact === 'negative' ? 'bg-red-500' :
-                        'bg-blue-500'
-                      )} />
-                      <p className="text-sm font-medium">{event.description}</p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Add New Event</CardTitle>
+                <CardDescription>Create a new moment in your character's journey</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label>Event Type</Label>
+                      <Select 
+                        value={newEvent.type}
+                        onValueChange={(value: ArcEvent['type']) => 
+                          setNewEvent(prev => ({ ...prev, type: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.entries(EVENT_TYPES).map(([value, { label }]) => (
+                            <SelectItem key={value} value={value}>
+                              {label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <p className="text-xs text-slate-500 mt-1">
-                      Chapter: {getChapterLabel(event.timelinePosition)} | Impact: {event.impact} | Intensity: {event.intensity}
-                    </p>
+
+                    <div>
+                      <Label>Impact</Label>
+                      <Select
+                        value={newEvent.impact}
+                        onValueChange={(value: ArcEvent['impact']) => 
+                          setNewEvent(prev => ({ ...prev, impact: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="positive">Positive</SelectItem>
+                          <SelectItem value="negative">Negative</SelectItem>
+                          <SelectItem value="neutral">Neutral</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
+
+                  <div>
+                    <Label>Event Description</Label>
+                    <textarea
+                      className="w-full mt-1 p-2 rounded-md border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      value={newEvent.description || ''}
+                      onChange={(e) => setNewEvent(prev => ({ 
+                        ...prev, 
+                        description: e.target.value
+                      }))}
+                      placeholder="Describe what happens in this event..."
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label>Timeline Position ({getChapterFromPosition(newEvent.timelinePosition || 0).replace('_', ' ')})</Label>
+                    <div className="pt-4">
+                      <Slider
+                        value={[newEvent.timelinePosition || 50]}
+                        onValueChange={([value]) => setNewEvent(prev => ({ 
+                          ...prev, 
+                          timelinePosition: value,
+                          chapter: getChapterFromPosition(value)
+                        }))}
+                        min={0}
+                        max={100}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label>Event Intensity ({newEvent.intensity || 5}/10)</Label>
+                    <div className="pt-4">
+                      <Slider
+                        value={[newEvent.intensity || 5]}
+                        onValueChange={([value]) => setNewEvent(prev => ({ 
+                          ...prev, 
+                          intensity: value
+                        }))}
+                        min={1}
+                        max={10}
+                        step={1}
+                      />
+                    </div>
+                  </div>
+
                   <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeEvent(event.id)}
+                    onClick={handleAddEvent}
+                    className="w-full"
+                    disabled={!newEvent.type || !newEvent.description || !newEvent.impact}
                   >
-                    <AlertCircle className="w-4 h-4 text-red-500" />
+                    <Plus className="w-4 h-4 mr-2" />
+                    Add Event to Timeline
                   </Button>
-                </motion.div>
-              ))}
-            </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </CardContent>
       </Card>
