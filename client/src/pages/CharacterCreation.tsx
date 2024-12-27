@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
 import BackgroundStory from '@/components/character/BackgroundStory';
 import MotivationsGoals from '@/components/character/MotivationsGoals';
+import Relationships from '@/components/character/Relationships';
 import {
   UserPlus,
   Users,
@@ -57,6 +58,19 @@ interface Goal {
   id: string;
   type: 'primary' | 'secondary';
   description: string;
+}
+
+interface Relationship {
+  id: string;
+  type: 'family' | 'friend' | 'rival' | 'mentor' | 'student' | 'ally' | 'enemy' | 'romantic';
+  targetCharacter: string;
+  attributes: {
+    trustLevel: number;
+    loyaltyScale: number;
+    conflictPotential: number;
+    powerDynamic: number;
+    emotionalBond: number;
+  };
 }
 
 // Constants
@@ -285,6 +299,7 @@ const CharacterCreationHub: React.FC = () => {
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
   const [primaryMotivation, setPrimaryMotivation] = useState<string>('');
   const [goals, setGoals] = useState<Goal[]>([]);
+  const [relationships, setRelationships] = useState<Relationship[]>([]);
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -333,6 +348,16 @@ const CharacterCreationHub: React.FC = () => {
   const handleGoalUpdate = (id: string, updates: Partial<Goal>) => {
     setGoals(prev => prev.map(goal =>
       goal.id === id ? { ...goal, ...updates } : goal
+    ));
+  };
+
+  const handleRelationshipAdd = (relationship: Relationship) => {
+    setRelationships(prev => [...prev, relationship]);
+  };
+
+  const handleRelationshipUpdate = (id: string, updates: Partial<Relationship>) => {
+    setRelationships(prev => prev.map(rel =>
+      rel.id === id ? { ...rel, ...updates } : rel
     ));
   };
 
@@ -657,6 +682,24 @@ const CharacterCreationHub: React.FC = () => {
                       goals={goals}
                       onGoalAdd={handleGoalAdd}
                       onGoalUpdate={handleGoalUpdate}
+                    />
+                  </motion.div>
+                )}
+                {currentStep === 4 && (
+                  <motion.div
+                    key="step-5"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
+                    <Relationships
+                      relationships={relationships}
+                      onRelationshipAdd={handleRelationshipAdd}
+                      onRelationshipUpdate={handleRelationshipUpdate}
+                      availableCharacters={characters.map(char => ({
+                        id: char.id,
+                        name: char.name
+                      }))}
                     />
                   </motion.div>
                 )}
