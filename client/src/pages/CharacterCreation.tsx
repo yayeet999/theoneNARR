@@ -9,7 +9,7 @@ import BackgroundStory from '@/components/character/BackgroundStory';
 import MotivationsGoals from '@/components/character/MotivationsGoals';
 import Relationships from '@/components/character/Relationships';
 import StrengthsFlaws from '@/components/character/StrengthsFlaws';
-import CharacterArc from '@/components/character/CharacterArc'; // Added import
+import CharacterArc from '@/components/character/CharacterArc';
 import {
   UserPlus,
   Users,
@@ -30,6 +30,8 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import PersonalitySystem from "@/components/character/PersonalitySystem"; //Import PersonalitySystem
+
 
 // Types
 interface Character {
@@ -49,6 +51,11 @@ interface Character {
   arc?: {
     type: 'positive' | 'negative' | 'flat';
     events: ArcEvent[];
+  };
+  personality?: {
+    traits: PersonalityTrait[];
+    beliefs: Belief[];
+    emotionalStates: EmotionalState[];
   };
 }
 
@@ -92,12 +99,34 @@ interface Trait {
   impact: string;
 }
 
-interface ArcEvent { // Added ArcEvent interface
+interface ArcEvent {
   id: string;
   type: 'emotional_beat' | 'revelation' | 'transformation';
   description: string;
   impact: string;
   position: number;
+}
+
+interface PersonalityTrait {
+  id: string;
+  trait: string;
+  score: number;
+  manifestation: string;
+}
+
+interface Belief {
+  id: string;
+  belief: string;
+  strength: number;
+  impact: string;
+}
+
+interface EmotionalState {
+  id: string;
+  emotion: string;
+  intensity: number;
+  trigger: string;
+  duration: string;
 }
 
 // Constants
@@ -151,7 +180,8 @@ const CREATION_STEPS = [
   { id: 'archetype', label: 'Archetype' },
   { id: 'background', label: 'Background' },
   { id: 'traits', label: 'Traits' },
-  { id: 'arc', label: 'Character Arc' }, // Added arc step
+  { id: 'arc', label: 'Character Arc' },
+  { id: 'personality', label: 'Personality' },
   { id: 'motivations', label: 'Motivations' },
   { id: 'relationships', label: 'Relationships' }
 ];
@@ -334,8 +364,11 @@ const CharacterCreationHub: React.FC = () => {
   const [minorStrengths, setMinorStrengths] = useState<Trait[]>([]);
   const [majorFlaws, setMajorFlaws] = useState<Trait[]>([]);
   const [minorFlaws, setMinorFlaws] = useState<Trait[]>([]);
-  const [arcType, setArcType] = useState<'positive' | 'negative' | 'flat'>('positive'); // Added arc state
-  const [arcEvents, setArcEvents] = useState<ArcEvent[]>([]); // Added arc state
+  const [arcType, setArcType] = useState<'positive' | 'negative' | 'flat'>('positive');
+  const [arcEvents, setArcEvents] = useState<ArcEvent[]>([]);
+  const [personalityTraits, setPersonalityTraits] = useState<PersonalityTrait[]>([]);
+  const [beliefs, setBeliefs] = useState<Belief[]>([]);
+  const [emotionalStates, setEmotionalStates] = useState<EmotionalState[]>([]);
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -437,18 +470,42 @@ const CharacterCreationHub: React.FC = () => {
     }
   };
 
-  const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => { // Added arc handler
+  const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => {
     setArcType(type);
   };
 
-  const handleAddArcEvent = (event: ArcEvent) => { // Added arc handler
+  const handleAddArcEvent = (event: ArcEvent) => {
     setArcEvents(prev => [...prev, event]);
   };
 
-  const handleRemoveArcEvent = (id: string) => { // Added arc handler
+  const handleRemoveArcEvent = (id: string) => {
     setArcEvents(prev => prev.filter(event => event.id !== id));
   };
 
+
+  const handleAddPersonalityTrait = (trait: PersonalityTrait) => {
+    setPersonalityTraits(prev => [...prev, trait]);
+  };
+
+  const handleRemovePersonalityTrait = (id: string) => {
+    setPersonalityTraits(prev => prev.filter(t => t.id !== id));
+  };
+
+  const handleAddBelief = (belief: Belief) => {
+    setBeliefs(prev => [...prev, belief]);
+  };
+
+  const handleRemoveBelief = (id: string) => {
+    setBeliefs(prev => prev.filter(b => b.id !== id));
+  };
+
+  const handleAddEmotionalState = (state: EmotionalState) => {
+    setEmotionalStates(prev => [...prev, state]);
+  };
+
+  const handleRemoveEmotionalState = (id: string) => {
+    setEmotionalStates(prev => prev.filter(s => s.id !== id));
+  };
 
   const isBasicInfoComplete = () => {
     return (
@@ -478,9 +535,14 @@ const CharacterCreationHub: React.FC = () => {
         majorFlaws,
         minorFlaws
       },
-      arc: { // Added arc to new character
+      arc: {
         type: arcType,
         events: arcEvents
+      },
+      personality: {
+        traits: personalityTraits,
+        beliefs: beliefs,
+        emotionalStates: emotionalStates
       }
     };
 
@@ -505,8 +567,11 @@ const CharacterCreationHub: React.FC = () => {
     setMinorStrengths([]);
     setMajorFlaws([]);
     setMinorFlaws([]);
-    setArcType('positive'); // Reset arc state
-    setArcEvents([]); // Reset arc state
+    setArcType('positive');
+    setArcEvents([]);
+    setPersonalityTraits([]);
+    setBeliefs([]);
+    setEmotionalStates([]);
 
     // Show success notification
     toast({
@@ -878,6 +943,35 @@ const CharacterCreationHub: React.FC = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                   >
+                    <PersonalitySystem
+                      personalityTraits={personalityTraits}
+                      beliefs={beliefs}
+                      emotionalStates={emotionalStates}
+                      onAddTrait={handleAddPersonalityTrait}
+                      onRemoveTrait={handleRemovePersonalityTrait}
+                      onAddBelief={handleAddBelief}
+                      onRemoveBelief={handleRemoveBelief}
+                      onAddEmotionalState={handleAddEmotionalState}
+                      onRemoveEmotionalState={handleRemoveEmotionalState}
+                    />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+                {currentStep === 6 && (
+                  <motion.div
+                    key="step-7"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
                     <MotivationsGoals
                       primaryMotivation={primaryMotivation}
                       onPrimaryMotivationChange={handlePrimaryMotivationChange}
@@ -896,9 +990,9 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 6 && (
+                {currentStep === 7 && (
                   <motion.div
-                    key="step-7"
+                    key="step-8"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
