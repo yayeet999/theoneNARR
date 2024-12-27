@@ -7,9 +7,8 @@ import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
 import BackgroundStory from '@/components/character/BackgroundStory';
 import MotivationsGoals from '@/components/character/MotivationsGoals';
-import Relationships from '@/components/character/Relationships';
 import StrengthsFlaws from '@/components/character/StrengthsFlaws';
-import CharacterArc from '@/components/character/CharacterArc';
+import PersonalitySystem from "@/components/character/PersonalitySystem";
 import {
   UserPlus,
   Users,
@@ -30,25 +29,6 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
-import PersonalitySystem from "@/components/character/PersonalitySystem"; //Import PersonalitySystem
-import SceneDynamics from '@/components/character/SceneDynamics';
-
-// Add new interfaces
-interface SceneInteraction {
-  id: string;
-  type: 'Conflict' | 'Alliance' | 'Romance' | 'Rivalry' | 'Mentorship' | 'Betrayal';
-  intensity: number;
-  participants: string[];
-  description: string;
-}
-
-interface PowerDynamic {
-  id: string;
-  character: string;
-  authorityLevel: 'Dominant' | 'Equal' | 'Subordinate';
-  influenceType: 'Direct' | 'Social' | 'Knowledge' | 'Resource';
-  description: string;
-}
 
 // Types
 interface Character {
@@ -65,27 +45,11 @@ interface Character {
     majorFlaws: Trait[];
     minorFlaws: Trait[];
   };
-  arc?: {
-    type: 'positive' | 'negative' | 'flat';
-    events: ArcEvent[];
-  };
   personality?: {
     traits: PersonalityTrait[];
     beliefs: Belief[];
     emotionalStates: EmotionalState[];
   };
-  sceneDynamics?: {
-    interactions: SceneInteraction[];
-    powerDynamics: PowerDynamic[];
-  };
-}
-
-interface CharacterRole {
-  id: string;
-  name: string;
-  description: string;
-  icon: React.ElementType;
-  typical_traits: string[];
 }
 
 interface LifeEvent {
@@ -120,14 +84,6 @@ interface Trait {
   impact: string;
 }
 
-interface ArcEvent {
-  id: string;
-  type: 'emotional_beat' | 'revelation' | 'transformation';
-  description: string;
-  impact: string;
-  position: number;
-}
-
 interface PersonalityTrait {
   id: string;
   trait: string;
@@ -149,6 +105,7 @@ interface EmotionalState {
   trigger: string;
   duration: string;
 }
+
 
 // Constants
 const CHARACTER_ROLES: CharacterRole[] = [
@@ -201,11 +158,8 @@ const CREATION_STEPS = [
   { id: 'archetype', label: 'Archetype' },
   { id: 'background', label: 'Background' },
   { id: 'traits', label: 'Traits' },
-  { id: 'arc', label: 'Character Arc' },
   { id: 'personality', label: 'Personality' },
-  { id: 'scene_dynamics', label: 'Scene Dynamics' },
-  { id: 'motivations', label: 'Motivations' },
-  { id: 'relationships', label: 'Relationships' }
+  { id: 'motivations', label: 'Motivations' }
 ];
 
 const ARCHETYPES = [
@@ -246,6 +200,14 @@ const ARCHETYPES = [
     traits: ['Curious', 'Adventurous', 'Independent']
   }
 ];
+
+interface CharacterRole {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  typical_traits: string[];
+}
 
 // Components
 const CharacterCard: React.FC<{ character: Character; onClick: () => void }> = ({ character, onClick }) => (
@@ -381,18 +343,14 @@ const CharacterCreationHub: React.FC = () => {
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
   const [primaryMotivation, setPrimaryMotivation] = useState<string>('');
   const [goals, setGoals] = useState<Goal[]>([]);
-  const [relationships, setRelationships] = useState<Relationship[]>([]);
   const [majorStrengths, setMajorStrengths] = useState<Trait[]>([]);
   const [minorStrengths, setMinorStrengths] = useState<Trait[]>([]);
   const [majorFlaws, setMajorFlaws] = useState<Trait[]>([]);
   const [minorFlaws, setMinorFlaws] = useState<Trait[]>([]);
-  const [arcType, setArcType] = useState<'positive' | 'negative' | 'flat'>('positive');
-  const [arcEvents, setArcEvents] = useState<ArcEvent[]>([]);
   const [personalityTraits, setPersonalityTraits] = useState<PersonalityTrait[]>([]);
   const [beliefs, setBeliefs] = useState<Belief[]>([]);
   const [emotionalStates, setEmotionalStates] = useState<EmotionalState[]>([]);
-  const [sceneInteractions, setSceneInteractions] = useState<SceneInteraction[]>([]);
-  const [powerDynamics, setPowerDynamics] = useState<PowerDynamic[]>([]);
+
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -444,16 +402,6 @@ const CharacterCreationHub: React.FC = () => {
     ));
   };
 
-  const handleRelationshipAdd = (relationship: Relationship) => {
-    setRelationships(prev => [...prev, relationship]);
-  };
-
-  const handleRelationshipUpdate = (id: string, updates: Partial<Relationship>) => {
-    setRelationships(prev => prev.map(rel =>
-      rel.id === id ? { ...rel, ...updates } : rel
-    ));
-  };
-
   const handleAddTrait = (
     type: 'majorStrength' | 'minorStrength' | 'majorFlaw' | 'minorFlaw',
     trait: Trait
@@ -494,19 +442,6 @@ const CharacterCreationHub: React.FC = () => {
     }
   };
 
-  const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => {
-    setArcType(type);
-  };
-
-  const handleAddArcEvent = (event: ArcEvent) => {
-    setArcEvents(prev => [...prev, event]);
-  };
-
-  const handleRemoveArcEvent = (id: string) => {
-    setArcEvents(prev => prev.filter(event => event.id !== id));
-  };
-
-
   const handleAddPersonalityTrait = (trait: PersonalityTrait) => {
     setPersonalityTraits(prev => [...prev, trait]);
   };
@@ -529,22 +464,6 @@ const CharacterCreationHub: React.FC = () => {
 
   const handleRemoveEmotionalState = (id: string) => {
     setEmotionalStates(prev => prev.filter(s => s.id !== id));
-  };
-
-  const handleAddSceneInteraction = (interaction: SceneInteraction) => {
-    setSceneInteractions(prev => [...prev, interaction]);
-  };
-
-  const handleRemoveSceneInteraction = (id: string) => {
-    setSceneInteractions(prev => prev.filter(i => i.id !== id));
-  };
-
-  const handleAddPowerDynamic = (dynamic: PowerDynamic) => {
-    setPowerDynamics(prev => [...prev, dynamic]);
-  };
-
-  const handleRemovePowerDynamic = (id: string) => {
-    setPowerDynamics(prev => prev.filter(d => d.id !== id));
   };
 
   const isBasicInfoComplete = () => {
@@ -575,18 +494,10 @@ const CharacterCreationHub: React.FC = () => {
         majorFlaws,
         minorFlaws
       },
-      arc: {
-        type: arcType,
-        events: arcEvents
-      },
       personality: {
         traits: personalityTraits,
         beliefs: beliefs,
         emotionalStates: emotionalStates
-      },
-      sceneDynamics: {
-        interactions: sceneInteractions,
-        powerDynamics: powerDynamics
       }
     };
 
@@ -606,18 +517,13 @@ const CharacterCreationHub: React.FC = () => {
     setLifeEvents([]);
     setPrimaryMotivation('');
     setGoals([]);
-    setRelationships([]);
     setMajorStrengths([]);
     setMinorStrengths([]);
     setMajorFlaws([]);
     setMinorFlaws([]);
-    setArcType('positive');
-    setArcEvents([]);
     setPersonalityTraits([]);
     setBeliefs([]);
     setEmotionalStates([]);
-    setSceneInteractions([]);
-    setPowerDynamics([]);
 
     // Show success notification
     toast({
@@ -963,31 +869,6 @@ const CharacterCreationHub: React.FC = () => {
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
                   >
-                    <CharacterArc
-                      arcType={arcType}
-                      arcEvents={arcEvents}
-                      onArcTypeChange={handleArcTypeChange}
-                      onAddEvent={handleAddArcEvent}
-                      onRemoveEvent={handleRemoveArcEvent}
-                    />
-                    <div className="flex justify-end mt-6">
-                      <Button
-                        onClick={handleNextStep}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
-                      >
-                        Next Step
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-                {currentStep === 5 && (
-                  <motion.div
-                    key="step-6"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
                     <PersonalitySystem
                       personalityTraits={personalityTraits}
                       beliefs={beliefs}
@@ -1010,35 +891,10 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 6 && (
+
+                {currentStep === 5 && (
                   <motion.div
-                    key="step-7"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <SceneDynamics
-                      sceneInteractions={sceneInteractions}
-                      powerDynamics={powerDynamics}
-                      onAddInteraction={handleAddSceneInteraction}
-                      onRemoveInteraction={handleRemoveSceneInteraction}
-                      onAddPowerDynamic={handleAddPowerDynamic}
-                      onRemovePowerDynamic={handleRemovePowerDynamic}
-                    />
-                    <div className="flex justify-end mt-6">
-                      <Button
-                        onClick={handleNextStep}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
-                      >
-                        Next Step
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-                {currentStep === 7 && (
-                  <motion.div
-                    key="step-8"
+                    key="step-6"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -1049,33 +905,6 @@ const CharacterCreationHub: React.FC = () => {
                       goals={goals}
                       onGoalAdd={handleGoalAdd}
                       onGoalUpdate={handleGoalUpdate}
-                    />
-                    <div className="flex justify-end mt-6">
-                      <Button
-                        onClick={handleNextStep}
-                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
-                      >
-                        Next Step
-                        <ChevronRight className="w-4 h-4 ml-2" />
-                      </Button>
-                    </div>
-                  </motion.div>
-                )}
-                {currentStep === 8 && (
-                  <motion.div
-                    key="step-9"
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                  >
-                    <Relationships
-                      relationships={relationships}
-                      onRelationshipAdd={handleRelationshipAdd}
-                      onRelationshipUpdate={handleRelationshipUpdate}
-                      availableCharacters={characters.map(char => ({
-                        id: char.id,
-                        name: char.name
-                      }))}
                     />
                     <div className="flex justify-end mt-6">
                       <Button
@@ -1092,7 +921,29 @@ const CharacterCreationHub: React.FC = () => {
             </div>
           </motion.div>
         )}
+        {characters.length > 0 && !isCreating && (
+          <AdvancedCharacterFeatures characters={characters} />
+        )}
       </div>
+    </div>
+  );
+};
+
+
+const AdvancedCharacterFeatures: React.FC<{ characters: Character[] }> = ({ characters }) => {
+  return (
+    <div className="mt-12">
+      <h2 className="text-xl font-semibold text-slate-900 mb-4">Advanced Character Features</h2 >
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {characters.map((character) => (
+          <div key={character.id}>
+            {/* Character Arc */}
+            <h2>{character.name}'s Character Arc</h2>
+            {/* Add components for Arc, Scene Dynamics, and Relationships here */}
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 text-sm text-slate-500">Consider adding more characters to enrich your story.</p>
     </div>
   );
 };
