@@ -26,6 +26,7 @@ import {
   Laugh
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
+import { Slider } from "@/components/ui/slider";
 
 // Types
 interface Character {
@@ -681,15 +682,20 @@ const CharacterCreationHub: React.FC = () => {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="age">Age</Label>
-                            <Input
-                              id="age"
-                              type="number"
-                              value={formData.age}
-                              onChange={handleInputChange}
-                              placeholder="Enter age"
-                              className="mt-1"
-                            />
+                            <Label htmlFor="age">Age ({formData.age || 0})</Label>
+                            <div className="pt-4">
+                              <Slider
+                                value={[parseInt(formData.age) || 0]}
+                                onValueChange={([value]) => setFormData(prev => ({
+                                  ...prev,
+                                  age: value.toString()
+                                }))}
+                                min={0}
+                                max={150}
+                                step={1}
+                                className="w-full"
+                              />
+                            </div>
                           </div>
                           <div>
                             <Label htmlFor="gender">Gender</Label>

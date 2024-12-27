@@ -24,6 +24,7 @@ import {
   Plus,
   AlertCircle
 } from 'lucide-react';
+import cn from 'classnames';
 
 interface Character {
   id: string;
@@ -168,32 +169,87 @@ export const CharacterArc: React.FC<Props> = ({
         <CardContent>
           <div className="space-y-6">
             {/* Timeline Visualization */}
-            <div className="relative h-24 bg-slate-100 rounded-lg overflow-hidden">
-              {events.map((event, index) => (
-                <motion.div
-                  key={event.id}
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute top-0 group"
-                  style={{ 
-                    left: `${(index / Math.max(events.length - 1, 1)) * 100}%`,
-                    transform: 'translateX(-50%)'
-                  }}
-                >
-                  <div 
-                    className={`w-4 h-4 rounded-full cursor-pointer ${
-                      event.impact === 'positive' ? 'bg-green-500' :
-                      event.impact === 'negative' ? 'bg-red-500' :
-                      'bg-blue-500'
-                    }`}
-                  />
-                  <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                    <p className="text-sm font-medium">{event.description}</p>
-                    <p className="text-xs text-slate-500">Impact: {event.impact}</p>
-                    <p className="text-xs text-slate-500">Intensity: {event.intensity}</p>
-                  </div>
-                </motion.div>
-              ))}
+            <div className="space-y-4">
+              <div className="relative">
+                {/* Timeline line */}
+                <div className="absolute left-0 right-0 h-1 bg-slate-200 top-1/2 transform -translate-y-1/2" />
+
+                {/* Timeline progression based on arc type */}
+                <div className={cn(
+                  "absolute left-0 right-0 h-1 top-1/2 transform -translate-y-1/2",
+                  "transition-all duration-500",
+                  arcType === 'positive' ? 'bg-gradient-to-r from-blue-500 via-green-500 to-emerald-500' :
+                  arcType === 'negative' ? 'bg-gradient-to-r from-blue-500 via-orange-500 to-red-500' :
+                  'bg-gradient-to-r from-blue-500 to-blue-500'
+                )} style={{ width: `${(events.length / 10) * 100}%` }} />
+
+                {/* Event markers */}
+                <div className="relative h-24 py-2">
+                  {events.map((event, index) => (
+                    <motion.div
+                      key={event.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="absolute top-1/2 transform -translate-y-1/2 group"
+                      style={{ 
+                        left: `${(index / Math.max(events.length - 1, 1)) * 100}%`,
+                      }}
+                    >
+                      {/* Event marker */}
+                      <div 
+                        className={cn(
+                          "w-6 h-6 rounded-full border-2 relative cursor-pointer",
+                          "transition-all duration-200 transform group-hover:scale-110",
+                          event.impact === 'positive' ? 'bg-green-100 border-green-500' :
+                          event.impact === 'negative' ? 'bg-red-100 border-red-500' :
+                          'bg-blue-100 border-blue-500'
+                        )}
+                      >
+                        {/* Event type icon */}
+                        <span className={cn(
+                          "absolute inset-0 flex items-center justify-center text-xs",
+                          event.impact === 'positive' ? 'text-green-600' :
+                          event.impact === 'negative' ? 'text-red-600' :
+                          'text-blue-600'
+                        )}>
+                          {event.type === 'emotional_beat' ? '💭' :
+                           event.type === 'revelation' ? '✨' :
+                           '🔄'}
+                        </span>
+                      </div>
+
+                      {/* Event details popup */}
+                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <div className="bg-white rounded-lg shadow-lg p-3 text-sm w-64">
+                          <div className="font-medium mb-1">{event.description}</div>
+                          <div className="flex items-center justify-between text-xs text-slate-500">
+                            <span>Type: {event.type.replace('_', ' ')}</span>
+                            <span>Intensity: {event.intensity}</span>
+                          </div>
+                          <div className={cn(
+                            "text-xs mt-1",
+                            event.impact === 'positive' ? 'text-green-600' :
+                            event.impact === 'negative' ? 'text-red-600' :
+                            'text-blue-600'
+                          )}>
+                            Impact: {event.impact}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Connection line to timeline */}
+                      <div className="absolute top-1/2 left-1/2 w-px h-8 bg-slate-300 transform -translate-x-1/2" />
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Timeline labels */}
+              <div className="flex justify-between text-sm text-slate-500">
+                <span>Story Beginning</span>
+                <span>Story Progression</span>
+                <span>Story Conclusion</span>
+              </div>
             </div>
 
             {/* Add New Event Form */}
