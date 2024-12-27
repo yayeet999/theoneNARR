@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -17,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
 import {
   TrendingUp,
   TrendingDown,
@@ -25,20 +25,25 @@ import {
   AlertCircle
 } from 'lucide-react';
 
+interface Character {
+  id: string;
+  name: string;
+}
+
 interface ArcEvent {
   id: string;
   type: 'emotional_beat' | 'revelation' | 'transformation';
   description: string;
-  impact: string;
-  position: number; // 0-100 to represent position in timeline
+  impact: 'positive' | 'negative' | 'neutral';
+  intensity: number;
 }
 
 interface Props {
-  arcType: 'positive' | 'negative' | 'flat';
-  arcEvents: ArcEvent[];
-  onArcTypeChange: (type: 'positive' | 'negative' | 'flat') => void;
-  onAddEvent: (event: ArcEvent) => void;
-  onRemoveEvent: (id: string) => void;
+  character: Character;
+  onArcUpdate: (arcData: {
+    arcType: 'positive' | 'negative' | 'flat';
+    events: ArcEvent[];
+  }) => void;
 }
 
 const ARC_TYPES = [
@@ -66,40 +71,56 @@ const ARC_TYPES = [
 ];
 
 export const CharacterArc: React.FC<Props> = ({
-  arcType,
-  arcEvents,
-  onArcTypeChange,
-  onAddEvent,
-  onRemoveEvent
+  character,
+  onArcUpdate
 }) => {
-  const [newEvent, setNewEvent] = useState({
-    type: 'emotional_beat' as const,
-    description: '',
-    impact: '',
-    position: 50
+  const [arcType, setArcType] = useState<'positive' | 'negative' | 'flat'>('positive');
+  const [events, setEvents] = useState<ArcEvent[]>([]);
+  const [newEvent, setNewEvent] = useState<Partial<ArcEvent>>({
+    type: 'emotional_beat',
+    impact: 'positive',
+    intensity: 5
   });
 
-  const selectedArcType = ARC_TYPES.find(type => type.id === arcType);
-
   const handleAddEvent = () => {
-    if (newEvent.description && newEvent.impact) {
-      onAddEvent({
+    if (newEvent.type && newEvent.description && newEvent.impact && newEvent.intensity !== undefined) {
+      const event: ArcEvent = {
         id: Math.random().toString(36).substr(2, 9),
-        ...newEvent
-      });
+        type: newEvent.type as ArcEvent['type'],
+        description: newEvent.description,
+        impact: newEvent.impact as ArcEvent['impact'],
+        intensity: newEvent.intensity
+      };
+
+      const updatedEvents = [...events, event];
+      setEvents(updatedEvents);
+      onArcUpdate({ arcType, events: updatedEvents });
+
       setNewEvent({
         type: 'emotional_beat',
-        description: '',
-        impact: '',
-        position: 50
+        impact: 'positive',
+        intensity: 5
       });
     }
+  };
+
+  const removeEvent = (id: string) => {
+    const updatedEvents = events.filter(e => e.id !== id);
+    setEvents(updatedEvents);
+    onArcUpdate({ arcType, events: updatedEvents });
+  };
+
+  const handleArcTypeChange = (type: 'positive' | 'negative' | 'flat') => {
+    setArcType(type);
+    onArcUpdate({ arcType: type, events });
   };
 
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-semibold text-slate-900 mb-4">Character Arc</h2>
+        <h2 className="text-2xl font-semibold text-slate-900 mb-4">
+          Character Arc for {character.name}
+        </h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {ARC_TYPES.map((type) => {
             const Icon = type.icon;
@@ -114,7 +135,7 @@ export const CharacterArc: React.FC<Props> = ({
                     ? 'border-indigo-600 bg-indigo-50 shadow-sm' 
                     : 'border-slate-200 hover:border-slate-300'}
                 `}
-                onClick={() => onArcTypeChange(type.id as 'positive' | 'negative' | 'flat')}
+                onClick={() => handleArcTypeChange(type.id as 'positive' | 'negative' | 'flat')}
               >
                 <div className="flex items-center space-x-3 mb-2">
                   <Icon className={`w-5 h-5 ${arcType === type.id ? 'text-indigo-600' : 'text-slate-400'}`} />
@@ -139,128 +160,155 @@ export const CharacterArc: React.FC<Props> = ({
         </div>
       </div>
 
-      {selectedArcType && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Arc Events Timeline</CardTitle>
-            <CardDescription>Add key moments that shape your character's arc</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {/* Timeline Visualization */}
-              <div className="relative h-24 bg-slate-100 rounded-lg overflow-hidden">
-                {arcEvents.map((event) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="absolute top-0 w-4 h-4 -ml-2 cursor-pointer"
-                    style={{ left: `${event.position}%` }}
-                  >
-                    <div 
-                      className={`w-full h-full rounded-full ${
-                        event.type === 'emotional_beat' ? 'bg-blue-500' :
-                        event.type === 'revelation' ? 'bg-purple-500' :
-                        'bg-green-500'
-                      }`}
-                    />
-                    <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">
-                      {event.description}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-
-              {/* Add New Event Form */}
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Event Type</Label>
-                    <Select 
-                      value={newEvent.type}
-                      onValueChange={(value: any) => setNewEvent(prev => ({ ...prev, type: value }))}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="emotional_beat">Emotional Beat</SelectItem>
-                        <SelectItem value="revelation">Revelation</SelectItem>
-                        <SelectItem value="transformation">Transformation</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Timeline Position (%)</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={newEvent.position}
-                      onChange={(e) => setNewEvent(prev => ({ ...prev, position: parseInt(e.target.value) || 0 }))}
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label>Description</Label>
-                  <Input
-                    value={newEvent.description}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, description: e.target.value }))}
-                    placeholder="Describe the event"
-                  />
-                </div>
-                <div>
-                  <Label>Impact on Character</Label>
-                  <Input
-                    value={newEvent.impact}
-                    onChange={(e) => setNewEvent(prev => ({ ...prev, impact: e.target.value }))}
-                    placeholder="How does this event affect the character?"
-                  />
-                </div>
-                <Button
-                  onClick={handleAddEvent}
-                  className="w-full"
-                  disabled={!newEvent.description || !newEvent.impact}
+      <Card>
+        <CardHeader>
+          <CardTitle>Arc Events Timeline</CardTitle>
+          <CardDescription>Add key moments that shape your character's arc</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-6">
+            {/* Timeline Visualization */}
+            <div className="relative h-24 bg-slate-100 rounded-lg overflow-hidden">
+              {events.map((event, index) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute top-0 group"
+                  style={{ 
+                    left: `${(index / Math.max(events.length - 1, 1)) * 100}%`,
+                    transform: 'translateX(-50%)'
+                  }}
                 >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add Event to Timeline
-                </Button>
+                  <div 
+                    className={`w-4 h-4 rounded-full cursor-pointer ${
+                      event.impact === 'positive' ? 'bg-green-500' :
+                      event.impact === 'negative' ? 'bg-red-500' :
+                      'bg-blue-500'
+                    }`}
+                  />
+                  <div className="absolute top-6 left-1/2 transform -translate-x-1/2 bg-white p-2 rounded shadow-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity z-10">
+                    <p className="text-sm font-medium">{event.description}</p>
+                    <p className="text-xs text-slate-500">Impact: {event.impact}</p>
+                    <p className="text-xs text-slate-500">Intensity: {event.intensity}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Add New Event Form */}
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Event Type</Label>
+                  <Select 
+                    value={newEvent.type}
+                    onValueChange={(value: ArcEvent['type']) => 
+                      setNewEvent(prev => ({ ...prev, type: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="emotional_beat">Emotional Beat</SelectItem>
+                      <SelectItem value="revelation">Revelation</SelectItem>
+                      <SelectItem value="transformation">Transformation</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label>Impact</Label>
+                  <Select
+                    value={newEvent.impact}
+                    onValueChange={(value: ArcEvent['impact']) => 
+                      setNewEvent(prev => ({ ...prev, impact: value }))}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="positive">Positive</SelectItem>
+                      <SelectItem value="negative">Negative</SelectItem>
+                      <SelectItem value="neutral">Neutral</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
-              {/* Events List */}
-              <div className="space-y-2">
-                {arcEvents.map((event) => (
-                  <motion.div
-                    key={event.id}
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="flex items-start space-x-2 bg-slate-50 p-3 rounded-md"
-                  >
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        <span className={`w-2 h-2 rounded-full ${
-                          event.type === 'emotional_beat' ? 'bg-blue-500' :
-                          event.type === 'revelation' ? 'bg-purple-500' :
-                          'bg-green-500'
-                        }`} />
-                        <p className="text-sm font-medium">{event.description}</p>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-1">{event.impact}</p>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onRemoveEvent(event.id)}
-                    >
-                      <AlertCircle className="w-4 h-4 text-red-500" />
-                    </Button>
-                  </motion.div>
-                ))}
+              <div>
+                <Label>Event Description</Label>
+                <input
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  value={newEvent.description || ''}
+                  onChange={(e) => setNewEvent(prev => ({ 
+                    ...prev, 
+                    description: e.target.value
+                  }))}
+                  placeholder="Describe the event"
+                />
               </div>
+
+              <div>
+                <Label>Event Intensity</Label>
+                <div className="pt-4">
+                  <Slider
+                    value={[newEvent.intensity || 5]}
+                    onValueChange={([value]) => setNewEvent(prev => ({ 
+                      ...prev, 
+                      intensity: value
+                    }))}
+                    min={1}
+                    max={10}
+                    step={1}
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleAddEvent}
+                className="w-full"
+                disabled={!newEvent.type || !newEvent.description || !newEvent.impact}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Event to Timeline
+              </Button>
             </div>
-          </CardContent>
-        </Card>
-      )}
+
+            {/* Events List */}
+            <div className="space-y-2">
+              {events.map((event) => (
+                <motion.div
+                  key={event.id}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-start space-x-2 bg-slate-50 p-3 rounded-md"
+                >
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2">
+                      <span className={`w-2 h-2 rounded-full ${
+                        event.impact === 'positive' ? 'bg-green-500' :
+                        event.impact === 'negative' ? 'bg-red-500' :
+                        'bg-blue-500'
+                      }`} />
+                      <p className="text-sm font-medium">{event.description}</p>
+                    </div>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Impact: {event.impact} | Intensity: {event.intensity}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => removeEvent(event.id)}
+                  >
+                    <AlertCircle className="w-4 h-4 text-red-500" />
+                  </Button>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
