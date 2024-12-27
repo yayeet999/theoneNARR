@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import BackgroundStory from '@/components/character/BackgroundStory';
 import MotivationsGoals from '@/components/character/MotivationsGoals';
 import Relationships from '@/components/character/Relationships';
+import StrengthsFlaws from '@/components/character/StrengthsFlaws'; // Added import
 import {
   UserPlus,
   Users,
@@ -27,7 +28,7 @@ import {
   ChevronRight,
   CheckCircle2
 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast"; // Add this import at the top with other imports
+import { useToast } from "@/hooks/use-toast";
 
 // Types
 interface Character {
@@ -38,6 +39,12 @@ interface Character {
   role: string;
   description: string;
   archetype?: string;
+  traits?: {
+    majorStrengths: Trait[];
+    minorStrengths: Trait[];
+    majorFlaws: Trait[];
+    minorFlaws: Trait[];
+  };
 }
 
 interface CharacterRole {
@@ -72,6 +79,12 @@ interface Relationship {
     powerDynamic: number;
     emotionalBond: number;
   };
+}
+
+interface Trait { // Added Trait interface
+  id: string;
+  description: string;
+  impact: string;
 }
 
 // Constants
@@ -124,6 +137,7 @@ const CREATION_STEPS = [
   { id: 'role', label: 'Role & Basic Info' },
   { id: 'archetype', label: 'Archetype' },
   { id: 'background', label: 'Background' },
+  { id: 'traits', label: 'Traits' }, // Added traits step
   { id: 'motivations', label: 'Motivations' },
   { id: 'relationships', label: 'Relationships' }
 ];
@@ -302,6 +316,10 @@ const CharacterCreationHub: React.FC = () => {
   const [primaryMotivation, setPrimaryMotivation] = useState<string>('');
   const [goals, setGoals] = useState<Goal[]>([]);
   const [relationships, setRelationships] = useState<Relationship[]>([]);
+  const [majorStrengths, setMajorStrengths] = useState<Trait[]>([]); // Added trait states
+  const [minorStrengths, setMinorStrengths] = useState<Trait[]>([]);
+  const [majorFlaws, setMajorFlaws] = useState<Trait[]>([]);
+  const [minorFlaws, setMinorFlaws] = useState<Trait[]>([]);
 
   const currentCharacterNumber = characters.length + 1;
 
@@ -363,6 +381,47 @@ const CharacterCreationHub: React.FC = () => {
     ));
   };
 
+  const handleAddTrait = (
+    type: 'majorStrength' | 'minorStrength' | 'majorFlaw' | 'minorFlaw',
+    trait: Trait
+  ) => {
+    switch (type) {
+      case 'majorStrength':
+        setMajorStrengths(prev => [...prev, trait]);
+        break;
+      case 'minorStrength':
+        setMinorStrengths(prev => [...prev, trait]);
+        break;
+      case 'majorFlaw':
+        setMajorFlaws(prev => [...prev, trait]);
+        break;
+      case 'minorFlaw':
+        setMinorFlaws(prev => [...prev, trait]);
+        break;
+    }
+  };
+
+  const handleRemoveTrait = (
+    type: 'majorStrength' | 'minorStrength' | 'majorFlaw' | 'minorFlaw',
+    id: string
+  ) => {
+    switch (type) {
+      case 'majorStrength':
+        setMajorStrengths(prev => prev.filter(t => t.id !== id));
+        break;
+      case 'minorStrength':
+        setMinorStrengths(prev => prev.filter(t => t.id !== id));
+        break;
+      case 'majorFlaw':
+        setMajorFlaws(prev => prev.filter(t => t.id !== id));
+        break;
+      case 'minorFlaw':
+        setMinorFlaws(prev => prev.filter(t => t.id !== id));
+        break;
+    }
+  };
+
+
   const isBasicInfoComplete = () => {
     return (
       selectedRole &&
@@ -384,7 +443,13 @@ const CharacterCreationHub: React.FC = () => {
       gender: formData.gender,
       role: CHARACTER_ROLES.find(r => r.id === selectedRole)?.name || '',
       description: formData.description,
-      archetype: ARCHETYPES.find(a => a.id === selectedArchetype)?.name
+      archetype: ARCHETYPES.find(a => a.id === selectedArchetype)?.name,
+      traits: {
+        majorStrengths,
+        minorStrengths,
+        majorFlaws,
+        minorFlaws
+      }
     };
 
     setCharacters(prev => [...prev, newCharacter]);
@@ -404,6 +469,10 @@ const CharacterCreationHub: React.FC = () => {
     setPrimaryMotivation('');
     setGoals([]);
     setRelationships([]);
+    setMajorStrengths([]);
+    setMinorStrengths([]);
+    setMajorFlaws([]);
+    setMinorFlaws([]);
 
     // Show success notification
     toast({
@@ -717,9 +786,35 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 3 && (
+                {currentStep === 3 && ( // StrengthsFlaws component added here
                   <motion.div
                     key="step-4"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
+                    <StrengthsFlaws
+                      majorStrengths={majorStrengths}
+                      minorStrengths={minorStrengths}
+                      majorFlaws={majorFlaws}
+                      minorFlaws={minorFlaws}
+                      onAddTrait={handleAddTrait}
+                      onRemoveTrait={handleRemoveTrait}
+                    />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
+                  </motion.div>
+                )}
+                {currentStep === 4 && (
+                  <motion.div
+                    key="step-5"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
@@ -742,9 +837,9 @@ const CharacterCreationHub: React.FC = () => {
                     </div>
                   </motion.div>
                 )}
-                {currentStep === 4 && (
+                {currentStep === 5 && (
                   <motion.div
-                    key="step-5"
+                    key="step-6"
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -20 }}
