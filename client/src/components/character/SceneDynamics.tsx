@@ -32,11 +32,17 @@ import {
   Database,
   AlertCircle
 } from 'lucide-react';
+import { cn } from "@/lib/utils";
+
+interface Character {
+  id: string;
+  name: string;
+}
 
 interface SceneInteraction {
   id: string;
   type: 'Conflict' | 'Alliance' | 'Romance' | 'Rivalry' | 'Mentorship' | 'Betrayal';
-  intensity: number; // 1-10
+  intensity: number;
   participants: string[];
   description: string;
 }
@@ -56,6 +62,7 @@ interface Props {
   onRemoveInteraction: (id: string) => void;
   onAddPowerDynamic: (dynamic: PowerDynamic) => void;
   onRemovePowerDynamic: (id: string) => void;
+  availableCharacters: Character[];
 }
 
 const INTERACTION_TYPES = [
@@ -80,22 +87,24 @@ export const SceneDynamics: React.FC<Props> = ({
   onAddInteraction,
   onRemoveInteraction,
   onAddPowerDynamic,
-  onRemovePowerDynamic
+  onRemovePowerDynamic,
+  availableCharacters
 }) => {
   const [newInteraction, setNewInteraction] = useState<Partial<SceneInteraction>>({});
   const [newPowerDynamic, setNewPowerDynamic] = useState<Partial<PowerDynamic>>({});
+  const [selectedParticipants, setSelectedParticipants] = useState<string[]>([]);
 
   const handleInteractionAdd = () => {
-    if (newInteraction.type && newInteraction.intensity && 
-        newInteraction.participants && newInteraction.description) {
+    if (newInteraction.type && newInteraction.intensity && selectedParticipants.length > 0 && newInteraction.description) {
       onAddInteraction({
         id: Math.random().toString(36).substr(2, 9),
         type: newInteraction.type as SceneInteraction['type'],
         intensity: newInteraction.intensity,
-        participants: newInteraction.participants,
+        participants: selectedParticipants,
         description: newInteraction.description
       });
       setNewInteraction({});
+      setSelectedParticipants([]);
     }
   };
 
@@ -111,6 +120,15 @@ export const SceneDynamics: React.FC<Props> = ({
       });
       setNewPowerDynamic({});
     }
+  };
+
+  const handleParticipantSelect = (characterId: string) => {
+    setSelectedParticipants(prev => {
+      if (prev.includes(characterId)) {
+        return prev.filter(id => id !== characterId);
+      }
+      return [...prev, characterId];
+    });
   };
 
   return (
@@ -143,7 +161,11 @@ export const SceneDynamics: React.FC<Props> = ({
                   <p className="text-sm font-medium">{interaction.type}</p>
                 </div>
                 <p className="text-xs text-slate-500">Intensity: {interaction.intensity}/10</p>
-                <p className="text-xs text-slate-500">Participants: {interaction.participants.join(', ')}</p>
+                <p className="text-xs text-slate-500">
+                  Participants: {interaction.participants.map(id => 
+                    availableCharacters.find(c => c.id === id)?.name
+                  ).join(', ')}
+                </p>
                 <p className="text-xs text-slate-500">{interaction.description}</p>
               </div>
               <Button
@@ -155,7 +177,7 @@ export const SceneDynamics: React.FC<Props> = ({
               </Button>
             </motion.div>
           ))}
-          
+
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -200,14 +222,24 @@ export const SceneDynamics: React.FC<Props> = ({
             </div>
             <div>
               <Label>Participants</Label>
-              <Input
-                value={newInteraction.participants?.join(', ') || ''}
-                onChange={(e) => setNewInteraction(prev => ({ 
-                  ...prev, 
-                  participants: e.target.value.split(',').map(p => p.trim())
-                }))}
-                placeholder="Enter character names, separated by commas"
-              />
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                {availableCharacters.map(character => (
+                  <Button
+                    key={character.id}
+                    variant="outline"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start",
+                      selectedParticipants.includes(character.id) && 
+                      "bg-indigo-50 border-indigo-600 text-indigo-600"
+                    )}
+                    onClick={() => handleParticipantSelect(character.id)}
+                  >
+                    <Users className="w-4 h-4 mr-2" />
+                    {character.name}
+                  </Button>
+                ))}
+              </div>
             </div>
             <div>
               <Label>Description</Label>
@@ -224,7 +256,7 @@ export const SceneDynamics: React.FC<Props> = ({
               onClick={handleInteractionAdd}
               className="w-full"
               disabled={!newInteraction.type || !newInteraction.intensity || 
-                       !newInteraction.participants || !newInteraction.description}
+                       selectedParticipants.length === 0 || !newInteraction.description}
             >
               Add Scene Interaction
             </Button>
@@ -250,7 +282,9 @@ export const SceneDynamics: React.FC<Props> = ({
               className="flex items-start space-x-2 bg-slate-50 p-3 rounded-md"
             >
               <div className="flex-1">
-                <p className="text-sm font-medium">{dynamic.character}</p>
+                <p className="text-sm font-medium">
+                  {availableCharacters.find(c => c.id === dynamic.character)?.name}
+                </p>
                 <div className="flex items-center space-x-2 mt-1">
                   <Shield className={cn(
                     "w-4 h-4",
@@ -277,18 +311,28 @@ export const SceneDynamics: React.FC<Props> = ({
               </Button>
             </motion.div>
           ))}
-          
+
           <div className="space-y-4">
             <div>
               <Label>Character</Label>
-              <Input
+              <Select
                 value={newPowerDynamic.character || ''}
-                onChange={(e) => setNewPowerDynamic(prev => ({ 
+                onValueChange={(value) => setNewPowerDynamic(prev => ({ 
                   ...prev, 
-                  character: e.target.value
+                  character: value
                 }))}
-                placeholder="Enter character name"
-              />
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select character" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableCharacters.map(character => (
+                    <SelectItem key={character.id} value={character.id}>
+                      {character.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle, Users, Activity, Network } from "lucide-react";
+import { AlertCircle, Users, Activity, Network } from 'lucide-react';
 import CharacterArc from './CharacterArc';
 import SceneDynamics from './SceneDynamics';
 import Relationships from './Relationships';
@@ -79,6 +79,10 @@ export const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
   const [selectedCharacter, setSelectedCharacter] = useState<string | null>(
     characters.length > 0 ? characters[0].id : null
   );
+
+  const [sceneInteractions, setSceneInteractions] = useState<any[]>([]);
+  const [powerDynamics, setPowerDynamics] = useState<any[]>([]);
+  const [relationships, setRelationships] = useState<any[]>([]);
 
   const features = [
     {
@@ -172,9 +176,8 @@ export const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
                   <CardContent>
                     <CharacterArc
                       character={characters.find(c => c.id === selectedCharacter)!}
-                      onArcUpdate={(arcData) => {
+                      onArcUpdate={(arcData: any) => {
                         console.log('Arc updated:', arcData);
-                        // Handle arc update
                       }}
                     />
                   </CardContent>
@@ -199,12 +202,21 @@ export const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
                   </CardHeader>
                   <CardContent>
                     <SceneDynamics
-                      sceneInteractions={[]}
-                      powerDynamics={[]}
-                      onAddInteraction={() => {}}
-                      onRemoveInteraction={() => {}}
-                      onAddPowerDynamic={() => {}}
-                      onRemovePowerDynamic={() => {}}
+                      sceneInteractions={sceneInteractions}
+                      powerDynamics={powerDynamics}
+                      onAddInteraction={(interaction) => {
+                        setSceneInteractions(prev => [...prev, interaction]);
+                      }}
+                      onRemoveInteraction={(id) => {
+                        setSceneInteractions(prev => prev.filter(i => i.id !== id));
+                      }}
+                      onAddPowerDynamic={(dynamic) => {
+                        setPowerDynamics(prev => [...prev, dynamic]);
+                      }}
+                      onRemovePowerDynamic={(id) => {
+                        setPowerDynamics(prev => prev.filter(d => d.id !== id));
+                      }}
+                      availableCharacters={characters}
                     />
                   </CardContent>
                 </Card>
@@ -228,13 +240,16 @@ export const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
                   </CardHeader>
                   <CardContent>
                     <Relationships
-                      relationships={[]}
-                      onRelationshipAdd={() => {}}
-                      onRelationshipUpdate={() => {}}
-                      availableCharacters={characters.map(char => ({
-                        id: char.id,
-                        name: char.name
-                      }))}
+                      relationships={relationships}
+                      onRelationshipAdd={(relation) => {
+                        setRelationships(prev => [...prev, relation]);
+                      }}
+                      onRelationshipUpdate={(id, updates) => {
+                        setRelationships(prev => prev.map(r =>
+                          r.id === id ? { ...r, ...updates } : r
+                        ));
+                      }}
+                      availableCharacters={characters}
                     />
                   </CardContent>
                 </Card>
