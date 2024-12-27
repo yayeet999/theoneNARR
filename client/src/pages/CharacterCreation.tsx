@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from '@/lib/utils';
+import BackgroundStory from '@/components/character/BackgroundStory';
+import MotivationsGoals from '@/components/character/MotivationsGoals';
 import {
   UserPlus,
   Users,
@@ -20,7 +22,9 @@ import {
   BookOpen,
   Zap,
   MessageCircle,
-  Laugh
+  Laugh,
+  ChevronRight,
+  CheckCircle2
 } from 'lucide-react';
 
 // Types
@@ -86,6 +90,14 @@ const CHARACTER_ROLES: CharacterRole[] = [
     icon: Laugh,
     typical_traits: ['Humorous', 'Light-hearted', 'Engaging']
   }
+];
+
+const CREATION_STEPS = [
+  { id: 'role', label: 'Role & Basic Info' },
+  { id: 'archetype', label: 'Archetype' },
+  { id: 'background', label: 'Background' },
+  { id: 'motivations', label: 'Motivations' },
+  { id: 'relationships', label: 'Relationships' }
 ];
 
 // Components
@@ -209,6 +221,7 @@ const CharacterCreationHub: React.FC = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
+  const [currentStep, setCurrentStep] = useState(0);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -235,6 +248,19 @@ const CharacterCreationHub: React.FC = () => {
       ...prev,
       [e.target.id]: e.target.value
     }));
+  };
+
+  const isBasicInfoComplete = () => {
+    return (
+      selectedRole &&
+      formData.name.trim() !== '' &&
+      formData.age !== '' &&
+      formData.gender !== ''
+    );
+  };
+
+  const handleNextStep = () => {
+    setCurrentStep(prev => prev + 1);
   };
 
   return (
@@ -292,82 +318,185 @@ const CharacterCreationHub: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             className="max-w-4xl mx-auto"
           >
-            <div className="bg-white rounded-xl shadow-sm p-8 space-y-8">
-              <div>
-                <h2 className="text-2xl font-semibold text-slate-900 mb-6">Character Role</h2>
-                <div className="grid grid-cols-2 gap-4">
-                  {CHARACTER_ROLES.map((role) => (
-                    <RoleCard
-                      key={role.id}
-                      role={role}
-                      isSelected={selectedRole === role.id}
-                      onClick={() => handleRoleSelect(role.id)}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <AnimatePresence>
-                {selectedRole && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="space-y-6"
+            {/* Progress Steps */}
+            <div className="mb-8">
+              <div className="flex justify-between items-center">
+                {CREATION_STEPS.map((step, index) => (
+                  <div
+                    key={step.id}
+                    className={cn(
+                      "flex items-center",
+                      index < CREATION_STEPS.length - 1 && "flex-1"
+                    )}
                   >
-                    <h2 className="text-2xl font-semibold text-slate-900">Basic Information</h2>
-                    <div className="space-y-4">
-                      <div>
-                        <Label htmlFor="name">Character Name</Label>
-                        <Input
-                          id="name"
-                          value={formData.name}
-                          onChange={handleInputChange}
-                          placeholder="Enter character name"
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="age">Age</Label>
-                        <Input
-                          id="age"
-                          type="number"
-                          value={formData.age}
-                          onChange={handleInputChange}
-                          placeholder="Enter age"
-                          className="mt-1"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="gender">Gender</Label>
-                        <div className="grid grid-cols-4 gap-4 mt-1">
-                          {['Male', 'Female', 'Non-binary', 'Other'].map((gender) => (
-                            <Button
-                              key={gender}
-                              variant="outline"
-                              className={cn(
-                                "w-full",
-                                formData.gender === gender && "bg-indigo-50 border-indigo-600 text-indigo-600"
-                              )}
-                              onClick={() => setFormData(prev => ({ ...prev, gender }))}
-                            >
-                              {gender}
-                            </Button>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <Label htmlFor="description">Initial Description</Label>
-                        <textarea
-                          id="description"
-                          value={formData.description}
-                          onChange={handleInputChange}
-                          className="w-full mt-1 rounded-md border border-slate-200 p-3"
-                          rows={3}
-                          placeholder="Add a brief description or concept for your character"
-                        />
+                    <div
+                      className={cn(
+                        "flex items-center justify-center w-8 h-8 rounded-full",
+                        index <= currentStep
+                          ? "bg-indigo-600 text-white"
+                          : "bg-slate-200 text-slate-500"
+                      )}
+                    >
+                      {index < currentStep ? (
+                        <CheckCircle2 className="w-5 h-5" />
+                      ) : (
+                        <span>{index + 1}</span>
+                      )}
+                    </div>
+                    <span
+                      className={cn(
+                        "ml-3 text-sm hidden sm:inline",
+                        index <= currentStep ? "text-slate-900" : "text-slate-500"
+                      )}
+                    >
+                      {step.label}
+                    </span>
+                    {index < CREATION_STEPS.length - 1 && (
+                      <div
+                        className={cn(
+                          "flex-1 h-0.5 mx-4",
+                          index < currentStep
+                            ? "bg-indigo-600"
+                            : "bg-slate-200"
+                        )}
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="bg-white rounded-xl shadow-sm p-8 space-y-8">
+              <AnimatePresence mode="wait">
+                {currentStep === 0 && (
+                  <motion.div
+                    key="step-1"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-8"
+                  >
+                    <div>
+                      <h2 className="text-2xl font-semibold text-slate-900 mb-6">Character Role</h2>
+                      <div className="grid grid-cols-2 gap-4">
+                        {CHARACTER_ROLES.map((role) => (
+                          <RoleCard
+                            key={role.id}
+                            role={role}
+                            isSelected={selectedRole === role.id}
+                            onClick={() => handleRoleSelect(role.id)}
+                          />
+                        ))}
                       </div>
                     </div>
+
+                    {selectedRole && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        className="space-y-6"
+                      >
+                        <h2 className="text-2xl font-semibold text-slate-900">Basic Information</h2>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="name">Character Name</Label>
+                            <Input
+                              id="name"
+                              value={formData.name}
+                              onChange={handleInputChange}
+                              placeholder="Enter character name"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="age">Age</Label>
+                            <Input
+                              id="age"
+                              type="number"
+                              value={formData.age}
+                              onChange={handleInputChange}
+                              placeholder="Enter age"
+                              className="mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="gender">Gender</Label>
+                            <div className="grid grid-cols-4 gap-4 mt-1">
+                              {['Male', 'Female', 'Non-binary', 'Other'].map((gender) => (
+                                <Button
+                                  key={gender}
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full",
+                                    formData.gender === gender && "bg-indigo-50 border-indigo-600 text-indigo-600"
+                                  )}
+                                  onClick={() => setFormData(prev => ({ ...prev, gender }))}
+                                >
+                                  {gender}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <Label htmlFor="description">Initial Description</Label>
+                            <textarea
+                              id="description"
+                              value={formData.description}
+                              onChange={handleInputChange}
+                              className="w-full mt-1 rounded-md border border-slate-200 p-3"
+                              rows={3}
+                              placeholder="Add a brief description or concept for your character"
+                            />
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end mt-6">
+                          <Button
+                            onClick={handleNextStep}
+                            className={cn(
+                              "bg-indigo-600 hover:bg-indigo-500 text-white px-6",
+                              "transition-all duration-200",
+                              !isBasicInfoComplete() && "opacity-50 cursor-not-allowed"
+                            )}
+                            disabled={!isBasicInfoComplete()}
+                          >
+                            Next Step
+                            <ChevronRight className="w-4 h-4 ml-2" />
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </motion.div>
+                )}
+
+                {currentStep === 1 && (
+                  <motion.div
+                    key="step-2"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
+                    {/* Archetype selection will be implemented here */}
+                  </motion.div>
+                )}
+                {currentStep === 2 && (
+                  <motion.div
+                    key="step-3"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
+                    <BackgroundStory />
+                  </motion.div>
+                )}
+                {currentStep === 3 && (
+                  <motion.div
+                    key="step-4"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                  >
+                    <MotivationsGoals />
                   </motion.div>
                 )}
               </AnimatePresence>
