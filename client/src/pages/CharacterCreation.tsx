@@ -667,6 +667,15 @@ const CharacterCreationHub: React.FC = () => {
                       onEventAdd={handleAddLifeEvent}
                       onEventUpdate={handleUpdateLifeEvent}
                     />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
                   </motion.div>
                 )}
                 {currentStep === 3 && (
@@ -683,6 +692,15 @@ const CharacterCreationHub: React.FC = () => {
                       onGoalAdd={handleGoalAdd}
                       onGoalUpdate={handleGoalUpdate}
                     />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={handleNextStep}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-6"
+                      >
+                        Next Step
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
                   </motion.div>
                 )}
                 {currentStep === 4 && (
@@ -701,6 +719,18 @@ const CharacterCreationHub: React.FC = () => {
                         name: char.name
                       }))}
                     />
+                    <div className="flex justify-end mt-6">
+                      <Button
+                        onClick={() => {
+                          // TODO: Handle character creation completion
+                          console.log('Character creation completed');
+                        }}
+                        className="bg-green-600 hover:bg-green-500 text-white px-6"
+                      >
+                        Complete Character
+                        <CheckCircle2 className="w-4 h-4 ml-2" />
+                      </Button>
+                    </div>
                   </motion.div>
                 )}
               </AnimatePresence>
