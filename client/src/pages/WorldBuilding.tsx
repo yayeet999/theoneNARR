@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "wouter";
 
 // Types
 interface SettingOption {
@@ -174,6 +175,7 @@ const TimeLineButton: React.FC<{
 );
 
 const WorldBuilding: React.FC = () => {
+  const [, navigate] = useLocation();
   // State
   const [selectedMainCategory, setSelectedMainCategory] = useState<'contained' | 'expansive' | null>(null);
   const [selectedSetting, setSelectedSetting] = useState<string | null>(null);
@@ -476,6 +478,10 @@ const WorldBuilding: React.FC = () => {
 
   const handleVariantSelect = (variantId: string) => {
     setSelectedVariant(variantId);
+  };
+
+  const handleCompleteWorldBuilding = () => {
+    navigate('/character-creation');
   };
 
   // Render Functions
@@ -993,17 +999,7 @@ const WorldBuilding: React.FC = () => {
           className="flex justify-end mt-8"
         >
           <Button
-            onClick={() => {
-              console.log('World building complete', {
-                setting: selectedSetting,
-                variant: selectedVariant,
-                timeline: selectedTimelineType,
-                period: selectedTimePeriod,
-                subPeriod: selectedSubPeriod,
-                worldSystem,
-                cultures: selectedCultures
-              });
-            }}
+            onClick={handleCompleteWorldBuilding}
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
             disabled={selectedCultures.length === 0}
           >

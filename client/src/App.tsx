@@ -3,12 +3,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import NovelCreation from "./pages/NovelCreation";
 import WorldBuilding from "./pages/WorldBuilding";
+import CharacterCreationHub from "./pages/CharacterCreation";
 
 function App() {
   return (
     <Switch>
       <Route path="/" component={NovelCreation} />
       <Route path="/world-building" component={WorldBuilding} />
+      <Route path="/character-creation" component={CharacterCreationHub} />
       <Route component={NotFound} />
     </Switch>
   );
