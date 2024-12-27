@@ -14,7 +14,13 @@ import {
   Brain,
   Heart,
   Smile,
-  AlertCircle
+  AlertCircle,
+  Crown,
+  Sword,
+  BookOpen,
+  Zap,
+  MessageCircle,
+  Laugh
 } from 'lucide-react';
 
 // Types
@@ -25,18 +31,69 @@ interface Character {
   gender: string;
   role: string;
   description: string;
+  archetype?: string;
 }
 
-interface CharacterCard {
-  character: Character;
-  onClick: () => void;
+interface CharacterRole {
+  id: string;
+  name: string;
+  description: string;
+  icon: React.ElementType;
+  typical_traits: string[];
 }
+
+// Constants
+const CHARACTER_ROLES: CharacterRole[] = [
+  {
+    id: 'protagonist',
+    name: 'Protagonist',
+    description: 'Main driver of the story',
+    icon: Crown,
+    typical_traits: ['Determined', 'Growth-oriented', 'Relatable']
+  },
+  {
+    id: 'antagonist',
+    name: 'Antagonist',
+    description: 'Primary opposing force',
+    icon: Sword,
+    typical_traits: ['Challenging', 'Complex motivation', 'Formidable']
+  },
+  {
+    id: 'mentor',
+    name: 'Mentor',
+    description: 'Guide or teacher',
+    icon: BookOpen,
+    typical_traits: ['Wise', 'Experienced', 'Supportive']
+  },
+  {
+    id: 'catalyst',
+    name: 'Catalyst',
+    description: 'Triggers major change/events',
+    icon: Zap,
+    typical_traits: ['Impactful', 'Transformative', 'Dynamic']
+  },
+  {
+    id: 'confidant',
+    name: 'Confidant',
+    description: 'Trusted ally/advisor',
+    icon: MessageCircle,
+    typical_traits: ['Loyal', 'Understanding', 'Trustworthy']
+  },
+  {
+    id: 'comic_relief',
+    name: 'Comic Relief',
+    description: 'Tension breaker',
+    icon: Laugh,
+    typical_traits: ['Humorous', 'Light-hearted', 'Engaging']
+  }
+];
 
 // Components
-const CharacterCard: React.FC<CharacterCard> = ({ character, onClick }) => (
+const CharacterCard: React.FC<{ character: Character; onClick: () => void }> = ({ character, onClick }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.3 }}
     className="flex-shrink-0 w-[280px]"
   >
     <Card
@@ -57,6 +114,12 @@ const CharacterCard: React.FC<CharacterCard> = ({ character, onClick }) => (
             <span className="text-sm text-slate-600">{character.role}</span>
           </div>
           <p className="text-sm text-slate-500 line-clamp-3">{character.description}</p>
+          {character.archetype && (
+            <div className="flex items-center space-x-2">
+              <Brain className="w-4 h-4 text-violet-600" />
+              <span className="text-sm text-slate-600">{character.archetype}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
@@ -67,6 +130,7 @@ const AddCharacterCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   <motion.div
     initial={{ opacity: 0, scale: 0.9 }}
     animate={{ opacity: 1, scale: 1 }}
+    transition={{ duration: 0.3 }}
     className="flex-shrink-0 w-[280px]"
   >
     <Card
@@ -86,11 +150,73 @@ const AddCharacterCard: React.FC<{ onClick: () => void }> = ({ onClick }) => (
   </motion.div>
 );
 
+const RoleCard: React.FC<{
+  role: CharacterRole;
+  isSelected: boolean;
+  onClick: () => void;
+}> = ({ role, isSelected, onClick }) => {
+  const Icon = role.icon;
+
+  return (
+    <motion.div
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(
+        "p-4 rounded-xl border transition-all duration-300 cursor-pointer",
+        isSelected
+          ? "border-indigo-600 bg-indigo-50 shadow-sm"
+          : "border-slate-200 bg-white hover:border-slate-300"
+      )}
+      onClick={onClick}
+    >
+      <div className="flex items-start space-x-3">
+        <Icon className={cn(
+          "w-6 h-6",
+          isSelected ? "text-indigo-600" : "text-slate-400"
+        )} />
+        <div>
+          <h4 className={cn(
+            "font-medium",
+            isSelected ? "text-indigo-600" : "text-slate-900"
+          )}>{role.name}</h4>
+          <p className="text-sm text-slate-500 mt-1">{role.description}</p>
+          {isSelected && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              className="mt-3"
+            >
+              <p className="text-xs font-medium text-slate-700 mb-2">Typical traits:</p>
+              <div className="flex flex-wrap gap-2">
+                {role.typical_traits.map((trait, index) => (
+                  <span
+                    key={index}
+                    className="text-xs px-2 py-1 rounded-full bg-indigo-100 text-indigo-700"
+                  >
+                    {trait}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
 const CharacterCreationHub: React.FC = () => {
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
-  
+  const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [formData, setFormData] = useState({
+    name: '',
+    age: '',
+    gender: '',
+    description: ''
+  });
+
   const handleCreateCharacter = () => {
     setIsCreating(true);
     setShowTutorial(false);
@@ -98,6 +224,17 @@ const CharacterCreationHub: React.FC = () => {
 
   const handleEditCharacter = (characterId: string) => {
     console.log('Edit character:', characterId);
+  };
+
+  const handleRoleSelect = (roleId: string) => {
+    setSelectedRole(roleId);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData(prev => ({
+      ...prev,
+      [e.target.id]: e.target.value
+    }));
   };
 
   return (
@@ -153,41 +290,87 @@ const CharacterCreationHub: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="max-w-2xl mx-auto bg-white rounded-xl shadow-sm p-8"
+            className="max-w-4xl mx-auto"
           >
-            <h2 className="text-2xl font-semibold text-slate-900 mb-6">Basic Information</h2>
-            <div className="space-y-6">
+            <div className="bg-white rounded-xl shadow-sm p-8 space-y-8">
               <div>
-                <Label htmlFor="name">Character Name</Label>
-                <Input id="name" placeholder="Enter character name" className="mt-1" />
-              </div>
-              <div>
-                <Label htmlFor="age">Age</Label>
-                <Input id="age" type="number" placeholder="Enter age" className="mt-1" />
-              </div>
-              <div>
-                <Label htmlFor="gender">Gender</Label>
-                <div className="grid grid-cols-4 gap-4 mt-1">
-                  {['Male', 'Female', 'Non-binary', 'Other'].map((gender) => (
-                    <Button
-                      key={gender}
-                      variant="outline"
-                      className="w-full"
-                    >
-                      {gender}
-                    </Button>
+                <h2 className="text-2xl font-semibold text-slate-900 mb-6">Character Role</h2>
+                <div className="grid grid-cols-2 gap-4">
+                  {CHARACTER_ROLES.map((role) => (
+                    <RoleCard
+                      key={role.id}
+                      role={role}
+                      isSelected={selectedRole === role.id}
+                      onClick={() => handleRoleSelect(role.id)}
+                    />
                   ))}
                 </div>
               </div>
-              <div>
-                <Label htmlFor="description">Initial Description</Label>
-                <textarea
-                  id="description"
-                  className="w-full mt-1 rounded-md border border-slate-200 p-3"
-                  rows={3}
-                  placeholder="Add a brief description or concept for your character"
-                />
-              </div>
+
+              <AnimatePresence>
+                {selectedRole && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-6"
+                  >
+                    <h2 className="text-2xl font-semibold text-slate-900">Basic Information</h2>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="name">Character Name</Label>
+                        <Input
+                          id="name"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          placeholder="Enter character name"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="age">Age</Label>
+                        <Input
+                          id="age"
+                          type="number"
+                          value={formData.age}
+                          onChange={handleInputChange}
+                          placeholder="Enter age"
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="gender">Gender</Label>
+                        <div className="grid grid-cols-4 gap-4 mt-1">
+                          {['Male', 'Female', 'Non-binary', 'Other'].map((gender) => (
+                            <Button
+                              key={gender}
+                              variant="outline"
+                              className={cn(
+                                "w-full",
+                                formData.gender === gender && "bg-indigo-50 border-indigo-600 text-indigo-600"
+                              )}
+                              onClick={() => setFormData(prev => ({ ...prev, gender }))}
+                            >
+                              {gender}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <Label htmlFor="description">Initial Description</Label>
+                        <textarea
+                          id="description"
+                          value={formData.description}
+                          onChange={handleInputChange}
+                          className="w-full mt-1 rounded-md border border-slate-200 p-3"
+                          rows={3}
+                          placeholder="Add a brief description or concept for your character"
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </motion.div>
         )}
