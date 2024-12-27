@@ -27,6 +27,7 @@ import {
   ChevronRight,
   CheckCircle2
 } from 'lucide-react';
+import { useToast } from "@/hooks/use-toast"; // Add this import at the top with other imports
 
 // Types
 interface Character {
@@ -284,6 +285,7 @@ const RoleCard: React.FC<{
 };
 
 const CharacterCreationHub: React.FC = () => {
+  const { toast } = useToast();
   const [characters, setCharacters] = useState<Character[]>([]);
   const [isCreating, setIsCreating] = useState(false);
   const [showTutorial, setShowTutorial] = useState(true);
@@ -372,6 +374,43 @@ const CharacterCreationHub: React.FC = () => {
 
   const handleNextStep = () => {
     setCurrentStep(prev => prev + 1);
+  };
+
+  const handleCharacterComplete = () => {
+    const newCharacter: Character = {
+      id: Math.random().toString(36).substr(2, 9),
+      name: formData.name,
+      age: parseInt(formData.age),
+      gender: formData.gender,
+      role: CHARACTER_ROLES.find(r => r.id === selectedRole)?.name || '',
+      description: formData.description,
+      archetype: ARCHETYPES.find(a => a.id === selectedArchetype)?.name
+    };
+
+    setCharacters(prev => [...prev, newCharacter]);
+
+    // Reset all states
+    setIsCreating(false);
+    setCurrentStep(0);
+    setSelectedRole(null);
+    setSelectedArchetype(null);
+    setFormData({
+      name: '',
+      age: '',
+      gender: '',
+      description: ''
+    });
+    setLifeEvents([]);
+    setPrimaryMotivation('');
+    setGoals([]);
+    setRelationships([]);
+
+    // Show success notification
+    toast({
+      title: "Character Created",
+      description: `${newCharacter.name} has been added to your cast of characters.`,
+      variant: "default",
+    });
   };
 
   return (
@@ -721,10 +760,7 @@ const CharacterCreationHub: React.FC = () => {
                     />
                     <div className="flex justify-end mt-6">
                       <Button
-                        onClick={() => {
-                          // TODO: Handle character creation completion
-                          console.log('Character creation completed');
-                        }}
+                        onClick={handleCharacterComplete}
                         className="bg-green-600 hover:bg-green-500 text-white px-6"
                       >
                         Complete Character
