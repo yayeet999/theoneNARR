@@ -46,7 +46,6 @@ interface Character {
   personality?: {
     traits: PersonalityTrait[];
     beliefs: Belief[];
-    emotionalStates: EmotionalState[];
   };
 }
 
@@ -94,14 +93,6 @@ interface Belief {
   belief: string;
   strength: number;
   impact: string;
-}
-
-interface EmotionalState {
-  id: string;
-  emotion: string;
-  intensity: number;
-  trigger: string;
-  duration: string;
 }
 
 
@@ -339,7 +330,7 @@ const CharacterCreationHub: React.FC = () => {
     description: ''
   });
   const [lifeEvents, setLifeEvents] = useState<LifeEvent[]>([]);
-  const [primaryMotivation, setPrimaryMotivation] = useState<string>('');
+  const [primaryMotivations, setPrimaryMotivations] = useState<string[]>([]);
   const [goals, setGoals] = useState<Goal[]>([]);
   const [majorStrengths, setMajorStrengths] = useState<Trait[]>([]);
   const [minorStrengths, setMinorStrengths] = useState<Trait[]>([]);
@@ -347,7 +338,6 @@ const CharacterCreationHub: React.FC = () => {
   const [minorFlaws, setMinorFlaws] = useState<Trait[]>([]);
   const [personalityTraits, setPersonalityTraits] = useState<PersonalityTrait[]>([]);
   const [beliefs, setBeliefs] = useState<Belief[]>([]);
-  const [emotionalStates, setEmotionalStates] = useState<EmotionalState[]>([]);
 
 
   const currentCharacterNumber = characters.length + 1;
@@ -387,7 +377,12 @@ const CharacterCreationHub: React.FC = () => {
   };
 
   const handlePrimaryMotivationChange = (motivation: string) => {
-    setPrimaryMotivation(motivation);
+    setPrimaryMotivations(prev => {
+      if (prev.includes(motivation)) {
+        return prev.filter(m => m !== motivation);
+      }
+      return [...prev, motivation];
+    });
   };
 
   const handleGoalAdd = (goal: Goal) => {
@@ -398,6 +393,10 @@ const CharacterCreationHub: React.FC = () => {
     setGoals(prev => prev.map(goal =>
       goal.id === id ? { ...goal, ...updates } : goal
     ));
+  };
+
+  const handleGoalRemove = (id: string) => {
+    setGoals(prev => prev.filter(goal => goal.id !== id));
   };
 
   const handleAddTrait = (
@@ -456,14 +455,6 @@ const CharacterCreationHub: React.FC = () => {
     setBeliefs(prev => prev.filter(b => b.id !== id));
   };
 
-  const handleAddEmotionalState = (state: EmotionalState) => {
-    setEmotionalStates(prev => [...prev, state]);
-  };
-
-  const handleRemoveEmotionalState = (id: string) => {
-    setEmotionalStates(prev => prev.filter(s => s.id !== id));
-  };
-
   const isBasicInfoComplete = () => {
     return (
       selectedRole &&
@@ -494,8 +485,7 @@ const CharacterCreationHub: React.FC = () => {
       },
       personality: {
         traits: personalityTraits,
-        beliefs: beliefs,
-        emotionalStates: emotionalStates
+        beliefs: beliefs
       }
     };
 
@@ -513,7 +503,7 @@ const CharacterCreationHub: React.FC = () => {
       description: ''
     });
     setLifeEvents([]);
-    setPrimaryMotivation('');
+    setPrimaryMotivations([]);
     setGoals([]);
     setMajorStrengths([]);
     setMinorStrengths([]);
@@ -521,7 +511,6 @@ const CharacterCreationHub: React.FC = () => {
     setMinorFlaws([]);
     setPersonalityTraits([]);
     setBeliefs([]);
-    setEmotionalStates([]);
 
     // Show success notification
     toast({
@@ -593,47 +582,88 @@ const CharacterCreationHub: React.FC = () => {
 
             {/* Progress Steps */}
             <div className="mb-8">
-              <div className="flex justify-between items-center">
+              <div className="relative flex items-center justify-between px-2">
+                {/* Background Line */}
+                <div className="absolute left-0 top-[22px] w-full h-[2px]">
+                  <div className="relative w-full h-full">
+                    <div className="absolute w-full h-full bg-slate-200" />
+                    <div 
+                      className="absolute h-full bg-gradient-to-r from-indigo-500 to-indigo-600 transition-all duration-300 ease-out"
+                      style={{ width: `${(currentStep / (CREATION_STEPS.length - 1)) * 100}%` }}
+                    />
+                  </div>
+                </div>
+
+                {/* Steps */}
                 {CREATION_STEPS.map((step, index) => (
                   <div
                     key={step.id}
-                    className={cn(
-                      "flex items-center",
-                      index < CREATION_STEPS.length - 1 && "flex-1"
-                    )}
+                    className="relative flex flex-col items-center"
                   >
-                    <div
-                      className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-full",
-                        index <= currentStep
-                          ? "bg-indigo-600 text-white"
-                          : "bg-slate-200 text-slate-500"
-                      )}
+                    <motion.div
+                      initial={false}
+                      animate={{
+                        scale: index === currentStep ? 1 : 0.9,
+                        opacity: index <= currentStep ? 1 : 0.7
+                      }}
+                      transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                      className="relative mb-2"
                     >
-                      {index < currentStep ? (
-                        <CheckCircle2 className="w-5 h-5" />
-                      ) : (
-                        <span>{index + 1}</span>
+                      <div
+                        className={cn(
+                          "w-11 h-11 rounded-full flex items-center justify-center transition-all duration-300",
+                          index < currentStep 
+                            ? "bg-gradient-to-br from-indigo-500 to-indigo-600 shadow-lg shadow-indigo-200" 
+                            : index === currentStep
+                              ? "bg-white border-2 border-indigo-500 shadow-md"
+                              : "bg-white border border-slate-200",
+                        )}
+                      >
+                        {index < currentStep ? (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                          >
+                            <CheckCircle2 className="w-5 h-5 text-white" />
+                          </motion.div>
+                        ) : (
+                          <span 
+                            className={cn(
+                              "text-sm font-medium",
+                              index === currentStep ? "text-indigo-600" : "text-slate-400"
+                            )}
+                          >
+                            {index + 1}
+                          </span>
+                        )}
+                      </div>
+                      {index <= currentStep && (
+                        <motion.div
+                          className="absolute -inset-1 rounded-full bg-indigo-100/50 -z-10"
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ duration: 0.2 }}
+                        />
                       )}
-                    </div>
-                    <span
+                    </motion.div>
+                    
+                    <motion.span
+                      initial={false}
+                      animate={{
+                        opacity: index <= currentStep ? 1 : 0.5
+                      }}
                       className={cn(
-                        "ml-3 text-sm hidden sm:inline",
-                        index <= currentStep ? "text-slate-900" : "text-slate-500"
+                        "text-xs font-medium whitespace-nowrap transition-colors duration-200",
+                        index === currentStep 
+                          ? "text-indigo-600"
+                          : index < currentStep
+                            ? "text-slate-700"
+                            : "text-slate-400"
                       )}
                     >
                       {step.label}
-                    </span>
-                    {index < CREATION_STEPS.length - 1 && (
-                      <div
-                        className={cn(
-                          "flex-1 h-0.5 mx-4",
-                          index < currentStep
-                            ? "bg-indigo-600"
-                            : "bg-slate-200"
-                        )}
-                      />
-                    )}
+                    </motion.span>
                   </div>
                 ))}
               </div>
@@ -875,13 +905,10 @@ const CharacterCreationHub: React.FC = () => {
                     <PersonalitySystem
                       personalityTraits={personalityTraits}
                       beliefs={beliefs}
-                      emotionalStates={emotionalStates}
                       onAddTrait={handleAddPersonalityTrait}
                       onRemoveTrait={handleRemovePersonalityTrait}
                       onAddBelief={handleAddBelief}
                       onRemoveBelief={handleRemoveBelief}
-                      onAddEmotionalState={handleAddEmotionalState}
-                      onRemoveEmotionalState={handleRemoveEmotionalState}
                     />
                     <div className="flex justify-end mt-6">
                       <Button
@@ -903,11 +930,12 @@ const CharacterCreationHub: React.FC = () => {
                     exit={{ opacity: 0, x: -20 }}
                   >
                     <MotivationsGoals
-                      primaryMotivation={primaryMotivation}
+                      primaryMotivations={primaryMotivations}
                       onPrimaryMotivationChange={handlePrimaryMotivationChange}
                       goals={goals}
                       onGoalAdd={handleGoalAdd}
                       onGoalUpdate={handleGoalUpdate}
+                      onGoalRemove={handleGoalRemove}
                     />
                     <div className="flex justify-end mt-6">
                       <Button

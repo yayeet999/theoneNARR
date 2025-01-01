@@ -16,7 +16,10 @@ import {
   Map,
   Sun,
   Atom,
-  X
+  X,
+  BookText,
+  BookMarked,
+  BookUp
 } from 'lucide-react';
 import { useLocation } from 'wouter';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -258,21 +261,21 @@ const NovelCreation = () => {
                 pages: '200-250 pages',
                 words: '50-62.5K words',
                 description: 'Perfect for focused, concise storytelling',
-                icon: BookOpen
+                icon: BookText
               },
               {
                 label: 'Medium',
                 pages: '250-350 pages',
                 words: '62.5-87.5K words',
                 description: 'Ideal for most novels and stories',
-                icon: BookOpen
+                icon: BookMarked
               },
               {
                 label: 'Long',
                 pages: '350-500 pages',
                 words: '87.5-125K words',
                 description: 'Great for epic, detailed narratives',
-                icon: BookOpen
+                icon: BookUp
               }
             ].map((option) => (
               <button

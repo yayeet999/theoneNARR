@@ -4,6 +4,14 @@ import { AlertCircle } from "lucide-react";
 import NovelCreation from "./pages/NovelCreation";
 import WorldBuilding from "./pages/WorldBuilding";
 import CharacterCreationHub from "./pages/CharacterCreation";
+import PlotStructureHub from "./pages/PlotStructure";
+import { CorePlotElements } from "@/components/plot/CorePlotElements";
+import { PacingAndIntegration } from "@/components/plot/PacingAndIntegration";
+import { ThemesOverview } from './components/themes/ThemesOverview';
+import { ThemeExpression } from './components/themes/ThemeExpression';
+import { StyleAndTone } from './components/style/StyleAndTone';
+import GenerateNovel from "./pages/GenerateNovel";
+import NovelPreview from "./pages/NovelPreview";
 
 function App() {
   return (
@@ -11,6 +19,14 @@ function App() {
       <Route path="/" component={NovelCreation} />
       <Route path="/world-building" component={WorldBuilding} />
       <Route path="/character-creation" component={CharacterCreationHub} />
+      <Route path="/plot-structure" component={PlotStructureHub} />
+      <Route path="/plot-structure/core-elements" component={CorePlotElements} />
+      <Route path="/plot-structure/pacing-integration" component={PacingAndIntegration} />
+      <Route path="/themes" component={ThemesOverview} />
+      <Route path="/themes/expression" component={ThemeExpression} />
+      <Route path="/style" component={StyleAndTone} />
+      <Route path="/preview" component={NovelPreview} />
+      <Route path="/generate" component={GenerateNovel} />
       <Route component={NotFound} />
     </Switch>
   );
