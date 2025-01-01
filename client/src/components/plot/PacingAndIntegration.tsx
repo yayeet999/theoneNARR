@@ -373,7 +373,7 @@ export const PacingAndIntegration: React.FC = () => {
           <Button
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
             size="lg"
-            onClick={() => navigate("/themes")}
+            onClick={() => navigate("/novel-workshop/generation/workflow/themes")}
           >
             Continue to Themes
             <ArrowRight className="w-4 h-4 ml-2" />

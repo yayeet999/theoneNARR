@@ -373,7 +373,7 @@ export const ThemesOverview: React.FC = () => {
         <Button
           className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
           size="lg"
-          onClick={() => navigate("/themes/expression")}
+          onClick={() => navigate("/novel-workshop/generation/workflow/themes/expression")}
           disabled={!selectedPrimaryTheme || selectedSupportingThemes.length === 0}
         >
           Continue to Theme Expression

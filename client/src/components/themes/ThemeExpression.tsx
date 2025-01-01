@@ -785,7 +785,7 @@ export const ThemeExpression: React.FC = () => {
         </Button>
         <Button
             size="default"
-          onClick={() => navigate("/style")}
+          onClick={() => navigate("/novel-workshop/generation/workflow/style")}
           disabled={!canGenerate}
             className={cn(
               "gap-2 group transition-all duration-300",

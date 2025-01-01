@@ -1103,7 +1103,7 @@ export const AdvancedCharacterFeatures: React.FC<Props> = ({ characters }) => {
           <Button
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
             size="lg"
-            onClick={() => navigate("/plot-structure")}
+            onClick={() => navigate("/novel-workshop/generation/workflow/plot-structure")}
           >
             Continue to Plot Structure
             <ArrowRight className="w-4 h-4 ml-2" />

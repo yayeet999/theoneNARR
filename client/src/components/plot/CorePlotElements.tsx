@@ -439,7 +439,7 @@ export const CorePlotElements: React.FC = () => {
         <Button
           className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
           size="lg"
-          onClick={() => navigate("/plot-structure/pacing-integration")}
+          onClick={() => navigate("/novel-workshop/generation/workflow/plot-structure/pacing-integration")}
         >
           Continue to Pacing & Integration
           <ArrowRight className="w-4 h-4 ml-2" />

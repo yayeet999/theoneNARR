@@ -226,7 +226,7 @@ export const StyleAndTone: React.FC = () => {
           </Button>
           <Button
             size="sm"
-            onClick={() => navigate("/preview")}
+            onClick={() => navigate("/novel-workshop/generation/workflow/preview")}
             disabled={!canContinue}
             className={cn(
               "gap-2 group transition-all duration-300",

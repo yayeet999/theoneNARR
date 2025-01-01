@@ -481,7 +481,7 @@ const WorldBuilding: React.FC = () => {
   };
 
   const handleCompleteWorldBuilding = () => {
-    navigate('/character-creation');
+    navigate('/novel-workshop/generation/workflow/character-creation');
   };
 
   // Render Functions

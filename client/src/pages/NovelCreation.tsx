@@ -175,7 +175,7 @@ const NovelCreation = () => {
 
   const handleNext = () => {
     if (step === 2 && selectedGenre && selectedSubgenres.length > 0) {
-      navigate('/world-building');
+      navigate('/novel-workshop/generation/workflow/world-building');
       return;
     }
 

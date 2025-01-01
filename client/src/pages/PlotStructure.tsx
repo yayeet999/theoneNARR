@@ -1785,7 +1785,7 @@ const PlotStructure: React.FC = () => {
           <Button
             className="bg-indigo-600 hover:bg-indigo-500 text-white px-8"
             size="lg"
-            onClick={() => navigate("/plot-structure/core-elements")}
+            onClick={() => navigate("/novel-workshop/generation/workflow/plot-structure/core-elements")}
           >
             Continue to Core Elements
             <ArrowRight className="w-4 h-4 ml-2" />
